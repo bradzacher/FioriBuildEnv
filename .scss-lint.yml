@@ -1,0 +1,43 @@
+linters:
+  Indentation:
+    width: 4
+
+  DisableLinterReason:
+    enabled: true
+
+  HexLength:
+    style: long
+
+  HexNotation:
+    enabled: false
+
+  IdSelector:
+    enabled: false
+
+  ImportantRule:
+    enabled: false
+
+  LeadingZero:
+    style: include_zero
+  
+  PropertyUnits:
+    global: [
+        'rem',                      # Font-relative lengths
+        'px',                       # Absolute lengths
+        'vh', 'vw', 'vmin', 'vmax', # Viewport-percentage lengths
+        'deg', 'rad',               # Angle
+        'ms', 's',                  # Duration
+        'dpi', 'dppx',              # Resolution
+        '%'                         # Other
+    ]
+    
+  QualifyingElement:
+    allow_element_with_id: false
+    allow_element_with_class: true
+    allow_element_with_attribute: true
+    
+  Shorthand:
+    enabled: false
+    
+  StringQuotes:
+    style: double_quotes

@@ -1,0 +1,11 @@
+$var: 3rem;
+
+html {
+    font-size: $var;
+
+    body {
+        border-width: $var;
+        border-color: black;
+        border-style: solid;
+    }
+}
