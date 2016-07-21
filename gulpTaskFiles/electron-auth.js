@@ -1,14 +1,12 @@
 const electron = require('electron');
 const electronConnect = require('electron-connect').client;
 
+const sapConfig = require('./sap-config.json');
+
 // Module to control application life.
-const {
-    app
-} = electron;
+const { app } = electron;
 // Module to create native browser window.
-const {
-    BrowserWindow
-} = electron;
+const { BrowserWindow } = electron;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -25,25 +23,25 @@ function createWindow() {
         height: 800,
         center: true,
         toolbar: false,
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
     });
 
     // and gwd to get an auth cookie.
-    win.loadURL('https://sapgwdev001.etsa.com.au:2080/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html');
+    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`);
 
     // listnen for redirect requests
-    win.webContents.on('did-get-redirect-request', function(event, oldUrl, newUrl) {
+    win.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {
         // this redirect in particular means SAP has received the SAML token and created the cookies
-        if (oldUrl.indexOf('https://sapgwdev001.etsa.com.au:2080/sap/saml2/sp/acs/100') != -1 &&
-            newUrl.indexOf('https://sapgwdev001.etsa.com.au:2080/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html') != -1) {
-            // listen for the next response so we can grab our session id 
-            win.webContents.on('did-get-response-details', function() {
+        if (oldUrl.indexOf(`${sapConfig.gateway}/sap/saml2/sp/acs/100`) !== -1 &&
+            newUrl.indexOf(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`) !== -1) {
+            // listen for the next response so we can grab our session id
+            win.webContents.on('did-get-response-details', () => {
                 win.webContents.session.cookies.get({}, (error, cookies) => {
                     // forward the cookie onto the gulp script
-                    var cookie = cookies.filter((c) => c.name === 'SAP_SESSIONID_GWD_100')[0];
+                    const cookie = cookies.filter((c) => c.name === 'SAP_SESSIONID_GWD_100')[0];
                     client.sendMessage('auth-success', {
                         name: cookie.name,
-                        value: cookie.value
+                        value: cookie.value,
                     });
                     hasAuthed = true;
                     // quit the app cos we're all done

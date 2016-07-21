@@ -1,6 +1,22 @@
 # FioriBuildEnv
 A gulp-based build environment for Fiori, including deployment to a ERP/Gateway server
 
+# Features
+
+- Lints JavaScript using eslint against the airbnb ruleset
+- Transpiles JavaScript files to ES5 using Babel
+- Transpiles SASS to CSS and concatenates to a single CSS file
+- Lints SASS using SCSSLint
+- Builds JavaScript and CSS source maps
+- Minifies XML and HTML
+- Builds a Component-preload.js containing all XML and JavaScript files
+- Options to automatically add JavaScript and CSS library files into index.html
+- Incudes a local browsersync development server with:
+    - Proxy middleware to forward OData service calls to your gateway server
+    - Easy service authentication
+    - Automatic reloads on source code changes
+- One click deployment to an ERP/Gateway server
+
 # File Structure
 
 ```
@@ -36,10 +52,11 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
 
 ```JavaScript
 {
-    gateway: '<url>', // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
-    localDevPort: '<port>', // the port that browsersync will run off (defaults to 3000)
-    bspApplication: '<name>', // the name of the BSP application to which the auto deployment script will deploy to
-    jsNamespace: '<ns>', // the namespace for your UI5 code 
+    gateway: '<url>',            // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
+    localDevPort: '<port>',      // the port that browsersync will run off (defaults to 3000)
+    bspDeployTarget: '<name>',   // the name of the BSP application to which the auto deployment script will deploy to
+    jsNamespace: '<ns>',         // the namespace for your UI5 code
+    deploymentService: '<name>', // the name of the OData service which you setup (as per the deployment section below)
 }
 ```
 
@@ -55,7 +72,7 @@ Builds the development/production version of the code
 
 1. Obtain a lock on the BSP application.
 2. Run the gulp watch task.
-3. Head to http://localhost:<localDevPort>/deploy (<localDevPort> defaults to 3000)
+3. Open ```http://localhost:3000/deploy``` in your browser (where 3000 is the dev port defined in your config)
 4. Follow the prompts.
 
 
@@ -63,19 +80,19 @@ Builds the development/production version of the code
 
 To automate deployment to SAP we need to:
  - copy a standard function module and make some changes
- - create an OData Service 
+ - create an OData Service
 
 ## Function Module
 
-Make a copy of the SAP Function Module  ```/UI5/UI5_REPOSITORY_LOAD_HTTP```  and includes then make the following changes:
+Make a copy of the SAP Function Module  ```/UI5/UI5_REPOSITORY_LOAD_HTTP```  and its includes, calling it ```ZUI5_REPOSITORY_LOAD_HTTP```, then make the following changes:
 
-Add a new importing parameter:  
-```abap 
+Add a new importing parameter:
+```abap
 VALUE(IV_ZIP_FILE) TYPE  XSTRING DEFAULT ''
 ```
 
 Add this code to line 171 to use the zip file passed in:
-```abap  
+```abap
 GET REFERENCE OF ev_log_messages INTO log_messages_ref.
   CREATE OBJECT sapui5_archive
     EXPORTING
@@ -142,11 +159,11 @@ Change the copy of the include ```/UI5/LUI5_REPOSITORY_LOADP01``` to use the zip
 ## OData Service
 
 Create a new OData project in SAP transaction SEGW. Add an entity called Project with the following properties:
- - appName (Edm.String / Key)  
+ - appName (Edm.String / Key)
  - zipFile (Edm.Binary)
 
-Implement the 'Create' operation and use the following code: 
-```abap  
+Implement the 'Create' operation and use the following code:
+```abap
 method projects_create_entity.
 
     data:
@@ -191,7 +208,7 @@ method projects_create_entity.
     endif.
 
     " upload the files to the bsp app
-    call function '/ETSA/UI5_REPOSITORY_LOAD_HTTP'
+    call function 'ZUI5_REPOSITORY_LOAD_HTTP'
       exporting
         iv_zip_file                = er_entity-zip_file
         iv_url                     = 'NA'

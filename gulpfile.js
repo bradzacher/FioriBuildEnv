@@ -60,9 +60,9 @@ const readConfig = () => {
     // eslint-disable-next-line global-require
     sapConfig = require(configFile);
     sapConfig = extend({
-        gateway: 'https://sapgwdev001.etsa.com.au:2080', // the url of the gateway server
+        gateway: null, // the url of the gateway server
         localDevPort: '3000', // the port which the local server will run from
-        bspApplication: null, // the name of the bsp application
+        bspDeployTarget: null, // the name of the bsp application
         jsNamespace: null, // the namespace for the javascript components
     }, sapConfig);
 };
@@ -81,7 +81,7 @@ const PATHS = {
         html: [`${SRC}/*.html`],
         xml: [`${SRC}/js/view/*.xml`],
         i18n: [`${SRC}/js/i18n/*.properties`],
-        manifest: [`${SRC}/js/manifest.json`],
+        json: [`${SRC}/js/*.json`],
     },
     build: {
         prd: {
@@ -157,17 +157,17 @@ gulp.task('build-dev-i18n', () => buildI18n('dev'));
 gulp.task('build-prd-i18n', () => buildI18n('prd'));
 
 /**
- * copies the manifest.json into the dir
+ * copies json files into the dir
  */
-function buildManifest(env) {
-    return gulp.src(PATHS.src.manifest)
+function buildJson(env) {
+    return gulp.src(PATHS.src.json)
         // print out the file deets
         .pipe(size(SIZE_OPTS))
         // write the result
         .pipe(gulp.dest(`${PATHS.build[env].root}`));
 }
-gulp.task('build-dev-manifest', () => buildManifest('dev'));
-gulp.task('build-prd-manifest', () => buildManifest('prd'));
+gulp.task('build-dev-json', () => buildJson('dev'));
+gulp.task('build-prd-json', () => buildJson('prd'));
 
 /**
  * Builds the HTML and transforms the resource tags
@@ -311,10 +311,10 @@ function buildUi5Component(env) {
     .pipe(gulp.dest(root));
 }
 gulp.task('build-dev-ui5-component',
-    ['build-dev-js', 'build-dev-html', 'build-dev-css', 'build-dev-font', 'build-dev-i18n', 'build-dev-manifest', 'build-dev-xml'],
+    ['build-dev-js', 'build-dev-html', 'build-dev-css', 'build-dev-font', 'build-dev-i18n', 'build-dev-json', 'build-dev-xml'],
     () => buildUi5Component('dev'));
 gulp.task('build-prd-ui5-component',
-    ['build-prd-js', 'build-prd-html', 'build-prd-css', 'build-prd-font', 'build-prd-i18n', 'build-prd-manifest', 'build-prd-xml'],
+    ['build-prd-js', 'build-prd-html', 'build-prd-css', 'build-prd-font', 'build-prd-i18n', 'build-prd-json', 'build-prd-xml'],
     () => buildUi5Component('prd'));
 
 /**
@@ -383,7 +383,7 @@ function watch(isServer) {
                     // re-read the config so it can be changed without restarting gulp
                     readConfig();
 
-                    const html = confirmationHtml.replace('{0}', sapConfig.bspApplication);
+                    const html = confirmationHtml.replace('{0}', sapConfig.bspDeployTarget);
                     return res.end(html);
                 },
             };
@@ -415,13 +415,14 @@ function watch(isServer) {
                                         // convert from raw bytes to base64
                                         const zipBase64 = btoa(String.fromCharCode.apply(null, zipRaw));
                                         const data = JSON.stringify({
-                                            appName: sapConfig.bspApplication,
+                                            appName: sapConfig.bspDeployTarget,
                                             zipFile: zipBase64,
                                         });
 
                                         // the client will do the sending of the requests
-                                        html = processingHtml.replace('{0}', cookieHeader)
-                                                             .replace('{1}', data);
+                                        html = processingHtml.replace('{0}', sapConfig)
+                                                             .replace('{1}', cookieHeader)
+                                                             .replace('{2}', data);
                                         res.end(html);
                                     });
                                 });
@@ -481,7 +482,7 @@ function watch(isServer) {
 
     watchUi5('HTML', buildHtml);
     watchUi5('XML', buildXml);
-    watchUi5('Manifest', buildManifest);
+    watchUi5('JSON', buildJson);
     watchUi5('i18n', buildI18n);
     watchUi5('Fonts', buildFonts);
 

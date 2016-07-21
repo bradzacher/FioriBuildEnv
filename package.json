@@ -9,6 +9,7 @@
     "browser-sync": "^2.12.3",
     "btoa": "^1.1.2",
     "del": "^2.2.0",
+    "electron": "^0.4.1",
     "electron-connect": "^0.4.2",
     "electron-prebuilt": "^1.2.6",
     "eslint": "^3.0.1",
@@ -64,7 +65,10 @@
     "rules": {
       "indent": [
         "error",
-        4
+        4,
+        {
+            "SwitchCase": 1
+        }
       ],
       "linebreak-style": [
         "error",
