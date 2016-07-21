@@ -1,11 +1,11 @@
-$var: 3rem;
+html[dir="ltr"] .myAppDemoWT .myCustomButton.sapMBtn {
+ 	margin-right: 0.125rem
+}
 
-html {
-    font-size: $var;
+html[dir="rtl"] .myAppDemoWT .myCustomButton.sapMBtn {
+ 	margin-left: 0.125rem
+}
 
-    body {
-        border-width: $var;
-        border-color: black;
-        border-style: solid;
-    }
+.myAppDemoWT .myCustomText {
+	font-weight: bold;
 }
