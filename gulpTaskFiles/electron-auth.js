@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies, import/no-unresolved
 const electron = require('electron');
 const electronConnect = require('electron-connect').client;
 
@@ -7,6 +8,7 @@ const sapConfig = require('./sap-config.json');
 const { app } = electron;
 // Module to create native browser window.
 const { BrowserWindow } = electron;
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -27,7 +29,10 @@ function createWindow() {
     });
 
     // and gwd to get an auth cookie.
-    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`);
+    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`, {
+        // spoof UA to look like IE11 so that we can work around the missing whitelist chrome UA
+        userAgent: 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+    });
 
     // listnen for redirect requests
     win.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {

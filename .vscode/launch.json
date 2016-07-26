@@ -49,7 +49,7 @@
             "name": "Launch electron in debug",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/electron-auth.js",
+            "program": "${workspaceRoot}/gulpTaskFiles/electron-auth.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
