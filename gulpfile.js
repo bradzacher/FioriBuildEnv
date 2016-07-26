@@ -420,7 +420,7 @@ function watch(isServer) {
                                         });
 
                                         // the client will do the sending of the requests
-                                        html = processingHtml.replace('{0}', sapConfig)
+                                        html = processingHtml.replace('{0}', JSON.stringify(sapConfig))
                                                              .replace('{1}', cookieHeader)
                                                              .replace('{2}', data);
                                         res.end(html);
