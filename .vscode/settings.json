@@ -16,5 +16,9 @@
     "editor.detectIndentation": false,
 
     // When enabled, will trim trailing whitespace when you save a file.
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+
+    "beautify.HTMLfiles": ["htm", "html", "xhtml", "shtml", "xml", "svg"],
+    "beautify.JSfiles": ["ts", "tsx", "js", "jsx", "json", "eslintrc", "jsbeautifyrc"],
+    "beautify.CSSfiles": ["css", "scss", "sass", "less"]
 }
