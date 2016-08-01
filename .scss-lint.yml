@@ -19,7 +19,7 @@ linters:
 
   LeadingZero:
     style: include_zero
-  
+
   PropertyUnits:
     global: [
         'rem',                      # Font-relative lengths
@@ -30,14 +30,26 @@ linters:
         'dpi', 'dppx',              # Resolution
         '%'                         # Other
     ]
-    
+
+  PropertySortOrder:
+    enabled: false
+
   QualifyingElement:
     allow_element_with_id: false
     allow_element_with_class: true
     allow_element_with_attribute: true
-    
+
   Shorthand:
     enabled: false
-    
+
   StringQuotes:
     style: double_quotes
+
+  SelectorDepth:
+    max_depth: 4
+
+  NestingDepth:
+    max_depth: 4
+
+  EmptyLineBetweenBlocks:
+    enabled: false
