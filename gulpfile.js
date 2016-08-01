@@ -485,8 +485,8 @@ function watch(isServer) {
     });
 
     watchUi5('html', buildHtml);
-    watchUi5('viewXml', buildXml);
-    watchUi5('fragmentXml', buildXml);
+    watchUi5('viewXml', e => buildXml(e, 'view'));
+    watchUi5('fragmentXml', e => buildXml(e, 'fragment'));
     watchUi5('json', buildJson);
     watchUi5('i18n', buildI18n);
     watchUi5('fonts', buildFonts);
