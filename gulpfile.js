@@ -79,7 +79,8 @@ const PATHS = {
         css: [`${SRC}/css/*.scss`],
         fonts: [`${SRC}/fonts/*`],
         html: [`${SRC}/*.html`],
-        xml: [`${SRC}/js/view/*.xml`],
+        viewXml: [`${SRC}/js/view/*.xml`],
+        fragmentXml: [`${SRC}/js/fragment/*.xml`],
         i18n: [`${SRC}/js/i18n/*.properties`],
         json: [`${SRC}/js/*.json`],
     },
@@ -170,10 +171,10 @@ gulp.task('build-dev-json', () => buildJson('dev'));
 gulp.task('build-prd-json', () => buildJson('prd'));
 
 /**
- * Builds the HTML and transforms the resource tags
+ * Builds the XML and transforms the resource tags
  */
-function buildXml(env) {
-    return gulp.src(PATHS.src.xml)
+function buildXml(env, type) {
+    return gulp.src(PATHS.src[`${type}Xml`])
         // print the files
         .pipe(size(SIZE_OPTS))
         // minify the HTML
@@ -185,10 +186,14 @@ function buildXml(env) {
             caseSensitive: true,
         }))
         // write the file
-        .pipe(gulp.dest(`${PATHS.build[env].root}/view`));
+        .pipe(gulp.dest(`${PATHS.build[env].root}/${type}`));
 }
-gulp.task('build-dev-xml', () => buildXml('dev'));
-gulp.task('build-prd-xml', () => buildXml('prd'));
+gulp.task('build-dev-view-xml', () => buildXml('dev', 'view'));
+gulp.task('build-prd-view-xml', () => buildXml('prd', 'view'));
+gulp.task('build-dev-fragment-xml', () => buildXml('dev', 'fragment'));
+gulp.task('build-prd-fragment-xml', () => buildXml('prd', 'fragment'));
+gulp.task('build-dev-xml', ['build-dev-view-xml', 'build-dev-fragment-xml']);
+gulp.task('build-prd-xml', ['build-prd-view-xml', 'build-prd-fragment-xml']);
 
 /**
  * Compiles the TSX, then browserifies it into a single file
