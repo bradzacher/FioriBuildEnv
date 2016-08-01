@@ -462,12 +462,11 @@ function watch(isServer) {
         isServer && browserSyncStarted && browserSync.notify(msg);
         util.log(msg);
     }
-    function watchUi5(type, func) {
-        const key = type.toLowerCase();
+    function watchUi5(key, func) {
         // watch for changes
         gulp.watch(PATHS.src[key], () => {
             // rebuild
-            notify(`Recompiling ${type}`);
+            notify(`Recompiling ${key}`);
             func(env).on('end', () => {
                 // rebuild component-preload.js
                 notify('Rebuilding Component-preload.js');
@@ -485,11 +484,12 @@ function watch(isServer) {
         isServer && browserSyncStarted && res.pipe(browserSync.stream({ match: '**/*.css' }));
     });
 
-    watchUi5('HTML', buildHtml);
-    watchUi5('XML', buildXml);
-    watchUi5('JSON', buildJson);
+    watchUi5('html', buildHtml);
+    watchUi5('viewXml', buildXml);
+    watchUi5('fragmentXml', buildXml);
+    watchUi5('json', buildJson);
     watchUi5('i18n', buildI18n);
-    watchUi5('Fonts', buildFonts);
+    watchUi5('fonts', buildFonts);
 
     // watch JS and reload when done
     return gulp.watch(PATHS.src.js, () => {
