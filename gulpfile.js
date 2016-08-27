@@ -490,13 +490,7 @@ function watch(isServer) {
     watchUi5('json', buildJson);
     watchUi5('i18n', buildI18n);
     watchUi5('fonts', buildFonts);
-
-    // watch JS and reload when done
-    return gulp.watch(PATHS.src.js, () => {
-        notify('Recompiling JS');
-        const res = buildJs(env);
-        isServer && browserSyncStarted && res.on('end', browserSync.reload);
-    });
+    watchUi5('js', buildJs);
 }
 gulp.task('watch', () => watch(true));
 gulp.task('watch-no-server', () => watch(false));
