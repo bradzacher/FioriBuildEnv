@@ -76,13 +76,13 @@ const SRC = 'src';
 const PATHS = {
     src: {
         js: [`${SRC}/js/**/*.js`], // [`${SRC}/js/**/*.ts`, `${SRC}/js/**/*.tsx`],
-        css: [`${SRC}/css/*.scss`],
+        css: [`${SRC}/css/**/*.scss`],
         fonts: [`${SRC}/fonts/*`],
         html: [`${SRC}/*.html`],
-        viewXml: [`${SRC}/js/view/*.xml`],
-        fragmentXml: [`${SRC}/js/fragment/*.xml`],
-        i18n: [`${SRC}/js/i18n/*.properties`],
-        json: [`${SRC}/js/*.json`],
+        viewXml: [`${SRC}/js/view/**/*.xml`],
+        fragmentXml: [`${SRC}/js/fragment/**/*.xml`],
+        i18n: [`${SRC}/js/i18n/**/*.properties`],
+        json: [`${SRC}/js/**/*.json`],
     },
     build: {
         prd: {
