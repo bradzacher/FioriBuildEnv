@@ -30,6 +30,19 @@ const zipFolder   = Promise.denodeify(require('zip-folder'));
 const mkdirp      = Promise.denodeify(require('mkdirp'));
 const readFile    = Promise.denodeify(fs.readFile);
 
+// unfortunately it is easy to cause a stackoverflow when using String.fromCharCode with a large enough array.
+// this function is a workaround for that issue.
+// taken from: https://stackoverflow.com/a/9458996/3736051
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
 // sap config
 let sapConfig;
 const readConfig = () => {
@@ -212,10 +225,6 @@ function buildJs(env) {
                 .pipe(sourcemaps.init())
                 // transpile to old JS
                 .pipe(babel())
-                // put the lime in the coconut
-                //.pipe(concat(PATHS.build[env].js))
-                // uglify (if in prd)
-                //.pipe(env === 'prd' ? uglify() : util.noop())
                 // write the sourcemap
                 .pipe(sourcemaps.write('.'))
                 // write the js file
@@ -388,6 +397,8 @@ function watch(isServer) {
                     // re-read the config so it can be changed without restarting gulp
                     readConfig();
 
+                    util.log('Request for /deploy received');
+
                     const html = confirmationHtml.replace('{0}', sapConfig.bspDeployTarget);
                     return res.end(html);
                 },
@@ -400,25 +411,41 @@ function watch(isServer) {
                     // re-read the config so it can be changed without restarting gulp
                     readConfig();
 
+                    util.log('Request for /deploy/yes received');
+
+                    const zipPath = `./${PATHS.zip}`;
+                    util.log(`Making directory "${zipPath}"...`);
+
                     // create directory
-                    return mkdirp(`./${PATHS.zip}`)
+                    return mkdirp(zipPath)
                         .then(() => {
+                            util.log('Successful.');
+
                             // zip the build folder
-                            const zipFileName = `./${PATHS.zip}/${env}.zip`;
+                            const zipFileName = `${zipPath}/${env}.zip`;
+                            util.log(`Zipping build directory to "${zipFileName}"...`);
                             return zipFolder(PATHS.build[env].root, zipFileName)
                                 .then((err) => {
                                     let html;
 
                                     if (err) {
+                                        const errStr = JSON.stringify(err, null, 4);
+                                        util.log(`Error occurred: ${errStr}"`);
                                         // somethign went wrong with zip process
-                                        html = errorHtml.replace('{0}', JSON.stringify(err, null, 4));
-                                        return null;
+                                        html = errorHtml.replace('{0}', errStr);
+                                        res.end(html);
                                     }
+                                    util.log('Successful.');
 
                                     // read the zip file that was just created
+                                    util.log('Reading zip file...');
                                     return readFile(zipFileName).then((zipRaw) => {
+                                        util.log('Successful.');
                                         // convert from raw bytes to base64
-                                        const zipBase64 = btoa(String.fromCharCode.apply(null, zipRaw));
+                                        util.log('Converting to base64 string...');
+                                        const zipBase64 = arrayBufferToBase64(zipRaw);
+                                        util.log('Successful.');
+                                        util.log('Returning HTML for processing.');
                                         const data = JSON.stringify({
                                             appName: sapConfig.bspDeployTarget,
                                             zipFile: zipBase64,
@@ -430,6 +457,11 @@ function watch(isServer) {
                                                              .replace('{2}', data);
                                         res.end(html);
                                     });
+                                })
+                                .catch((err) => {
+                                    const errStr = JSON.stringify(err, null, 4);
+                                    util.log(`Error occurred: ${errStr}"`);
+                                    res.end(errorHtml.replace('{0}', errStr));
                                 });
                         });
                 },
