@@ -43,41 +43,48 @@
             document.cookie = '{1}';
 
             // step 2 - get the csrf token
-            statusSpan.innerHTML = 'Getting CSRF';
-            var csrfRequest = new XMLHttpRequest();
-            csrfRequest.open('GET', '/sap/opu/odata/' + sapConfig.deploymentService + '/$metadata', true);
-            csrfRequest.setRequestHeader('X-CSRF-Token', 'Fetch');
-            csrfRequest.onreadystatechange = function() {
-                if (csrfRequest.readyState === XMLHttpRequest.DONE) {
-                    if (csrfRequest.status >= 200 && csrfRequest.status <= 300) {
-                        // grab the token from the response
+            var retryCount = 0;
+            (function getCsrfAndDeploy() {
+                statusSpan.innerHTML = 'Getting CSRF';
+                var csrfRequest = new XMLHttpRequest();
+                csrfRequest.open('GET', '/sap/opu/odata/' + sapConfig.deploymentService + '/$metadata', true);
+                csrfRequest.setRequestHeader('X-CSRF-Token', 'Fetch');
+                csrfRequest.onreadystatechange = function() {
+                    if (csrfRequest.readyState === XMLHttpRequest.DONE) {
+                        if (csrfRequest.status >= 200 && csrfRequest.status <= 300) {
+                            // grab the token from the response
 
-                        // step 3 - post the data
-                        statusSpan.innerHTML = 'Uploading ZIP';
-                        var request = new XMLHttpRequest();
-                        request.open('POST', '/sap/opu/odata/' + sapConfig.deploymentService + '/Projects', true);
-                        request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                        request.setRequestHeader('Accept', 'application/json');
-                        request.setRequestHeader('x-csrf-token', csrfRequest.getResponseHeader('x-csrf-token'));
-                        request.onreadystatechange = function() {
-                            if (request.readyState === XMLHttpRequest.DONE) {
-                                if (request.status >= 200 && request.status <= 300) {
-                                    statusSpan.innerHTML = 'Successful';
-                                } else if (request.status === 400) {
-                                    statusSpan.innerHTML = 'Error';
-                                    errorMessage.innerHTML = JSON.parse(request.responseText).error.message.value;
-                                } else {
-                                    doError(request);
+                            // step 3 - post the data
+                            statusSpan.innerHTML = 'Uploading ZIP';
+                            var request = new XMLHttpRequest();
+                            request.open('POST', '/sap/opu/odata/' + sapConfig.deploymentService + '/Projects', true);
+                            request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                            request.setRequestHeader('Accept', 'application/json');
+                            request.setRequestHeader('x-csrf-token', csrfRequest.getResponseHeader('x-csrf-token'));
+                            request.onreadystatechange = function() {
+                                if (request.readyState === XMLHttpRequest.DONE) {
+                                    if (request.status >= 200 && request.status <= 300) {
+                                        statusSpan.innerHTML = 'Successful';
+                                    } else if (request.status === 400) {
+                                        statusSpan.innerHTML = 'Error';
+                                        errorMessage.innerHTML = JSON.parse(request.responseText).error.message.value;
+                                    } else {
+                                        doError(request);
+                                    }
                                 }
-                            }
-                        };
-                        request.send('{2}');
-                    } else {
-                        doError(csrfRequest);
+                            };
+                            request.send('{2}');
+                        } else if (csrfRequest.status === 403 && retryCount <= 2) {
+                            // sometimes SAP gives us an invalid CSRF token on the first pass, so try the whole thing again just in case
+                            retryCount++;
+                            getCsrfAndDeploy();
+                        } else {
+                            doError(csrfRequest);
+                        }
                     }
-                }
-            };
-            csrfRequest.send();
+                };
+                csrfRequest.send();
+            })();
         </script>
     </body>
 </html>
