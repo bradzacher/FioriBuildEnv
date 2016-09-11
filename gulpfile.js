@@ -98,8 +98,6 @@ const PATHS = {
         json: [`${SRC}/js/**/*.json`],
     },
     build: {
-        jsLib: 'common.js',
-        cssLib: 'common.css',
         root: 'build',
         js: 'app.js',
         css: 'styles.css',
@@ -220,15 +218,19 @@ gulp.task('build-js', buildJs);
  * Builds the HTML and transforms the resource tags
  */
 function buildHtml() {
+    let css = PATHS.build.css;
+    if (PATHS.build.css.indexOf('.min.') === -1) {
+        css = css.replace('.css', '.min.css');
+    }
+
+
     return gulp.src(PATHS.src.html)
         // print the files
         .pipe(size(SIZE_OPTS))
         // insert the references to the built files
         .pipe(htmlreplace({
             js: `js/${PATHS.build.js}`,
-            jsLib: `lib/${PATHS.build.jsLib}`,
-            cssLib: `lib/${PATHS.build.cssLib}`,
-            css: `css/${PATHS.build.css}`,
+            css: `css/${css}`,
         }))
         // minify the HTML
         .pipe(htmlmin({
@@ -278,15 +280,14 @@ function buildCss() {
         .on('error', beep)
         // print out the file deets
         .pipe(size(SIZE_OPTS))
-        // concat the files together
+        // concat the files together and rename too!
         .pipe(concat(PATHS.build.css))
-        // write the sourcemaps
-        .pipe(sourcemaps.write('.'))
-        // write the result
-        .pipe(gulp.dest(`${PATHS.build.root}/css`))
         // minify it as well
         .pipe(cssmin())
-        .pipe(rename({ extname: '.min.js' }))
+        // write the sourcemaps
+        .pipe(sourcemaps.write('.'))
+        // rename to show minification
+        .pipe(rename({ extname: '.min.css' }))
         // write the result
         .pipe(gulp.dest(`${PATHS.build.root}/css`));
 }
