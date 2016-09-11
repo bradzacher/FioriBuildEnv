@@ -34,11 +34,11 @@
         "promise": "^7.1.1",
         "zip-folder": "^1.0.0"
     },
-    "//": "babel config",
     "scripts": {
         "preinstall": "gem install sass && gem install scss_lint",
         "start": "gulp watch"
     },
+    "//": "eslint config",
     "eslintConfig": {
         "globals": {
             "sap": true,
@@ -119,6 +119,7 @@
             ]
         }
     },
+    "//": "babel config",
     "babel": {
         "presets": [
             "es2015"
