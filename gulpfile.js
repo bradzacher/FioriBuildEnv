@@ -6,7 +6,6 @@
 const browserSync = require('browser-sync').create();
 const btoa        = require('btoa');
 const del         = require('del');
-const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js' });
 const extend      = require('extend');
 const fs          = require('fs');
 const gulp        = require('gulp');
@@ -23,25 +22,6 @@ const size        = require('gulp-size');
 const sourcemaps  = require('gulp-sourcemaps');
 const ui5preload  = require('gulp-ui5-preload');
 const util        = require('gulp-util');
-const proxy       = require('http-proxy-middleware');
-
-const Promise     = require('promise');
-const zipFolder   = Promise.denodeify(require('zip-folder'));
-const mkdirp      = Promise.denodeify(require('mkdirp'));
-const readFile    = Promise.denodeify(fs.readFile);
-
-// unfortunately it is easy to cause a stackoverflow when using String.fromCharCode with a large enough array.
-// this function is a workaround for that issue.
-// taken from: https://stackoverflow.com/a/9458996/3736051
-function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-}
 
 // sap config
 let sapConfig;
@@ -223,7 +203,6 @@ function buildHtml() {
         css = css.replace('.css', '.min.css');
     }
 
-
     return gulp.src(PATHS.src.html)
         // print the files
         .pipe(size(SIZE_OPTS))
@@ -320,154 +299,10 @@ function watch(isServer) {
     let browserSyncStarted = false;
 
     if (isServer) {
-        let successReceived = false;
-
-        // get auth data via an electron window
-        electron.start();
-        electron.on('auth-success', (authCookie) => {
-            // for some reason sometimes the success fires twice
-            // this will prevent us from trying to boot two servers on the port
-            if (successReceived) {
-                return;
-            }
-            successReceived = true;
-
-            electron.stop();
-
-            const cookieHeader = `${authCookie.name}=${authCookie.value}`;
-
-            // disable security rejections
-            // this is easier than trying to make nodejs accept the sapn ca
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-            let confirmationHtml;
-            let processingHtml;
-            let errorHtml;
-            readFile('./gulpTaskFiles/confirmation.html', 'utf8').then((text) => {
-                confirmationHtml = text;
-            });
-            readFile('./gulpTaskFiles/processing.html', 'utf8').then((text) => {
-                processingHtml = text;
-            });
-            readFile('./gulpTaskFiles/error.html', 'utf8').then((text) => {
-                errorHtml = text;
-            });
-
-            // setup the middleware to proxy requests to GWD
-            const sapProxy = proxy('/sap/', {
-                target: sapConfig.gateway,
-                changeOrigin: true,
-                headers: {
-                    Cookie: cookieHeader,
-                },
-                secure: false,
-            });
-            const libProxy = proxy('**/resources/**', {
-                target: `${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap`,
-                changeOrigin: true,
-                headers: {
-                    Cookie: cookieHeader,
-                },
-                secure: false,
-            });
-            // called when the dev goes to http://localhost:<port>/deploy
-            // displays a confirmation window for deployment
-            const deploymentConfirmation = {
-                route: '/deploy',
-                handle: (req, res) => {
-                    // re-read the config so it can be changed without restarting gulp
-                    readConfig();
-
-                    util.log('Request for /deploy received');
-
-                    const html = confirmationHtml.replace('{0}', sapConfig.bspDeployTarget);
-                    return res.end(html);
-                },
-            };
-            // called when the dev clicks the confirmation link
-            // displays an info window for the deployment process
-            const deploymentConfirmed = {
-                route: '/deploy/yes',
-                handle: (req, res) => {
-                    // re-read the config so it can be changed without restarting gulp
-                    readConfig();
-
-                    util.log('Request for /deploy/yes received');
-
-                    const zipPath = `./${PATHS.zip}`;
-                    util.log(`Making directory "${zipPath}"...`);
-
-                    // create directory
-                    return mkdirp(zipPath)
-                        .then(() => {
-                            util.log('Successful.');
-
-                            // zip the build folder
-                            const zipFileName = `${zipPath}/div.zip`;
-                            util.log(`Zipping build directory to "${zipFileName}"...`);
-                            return zipFolder(PATHS.build.root, zipFileName)
-                                .then((err) => {
-                                    let html;
-
-                                    if (err) {
-                                        const errStr = JSON.stringify(err, null, 4);
-                                        util.log(`Error occurred: ${errStr}"`);
-                                        // somethign went wrong with zip process
-                                        html = errorHtml.replace('{0}', errStr);
-                                        res.end(html);
-                                    }
-                                    util.log('Successful.');
-
-                                    // read the zip file that was just created
-                                    util.log('Reading zip file...');
-                                    return readFile(zipFileName).then((zipRaw) => {
-                                        util.log('Successful.');
-                                        // convert from raw bytes to base64
-                                        util.log('Converting to base64 string...');
-                                        const zipBase64 = arrayBufferToBase64(zipRaw);
-                                        util.log('Successful.');
-                                        util.log('Returning HTML for processing.');
-                                        const data = JSON.stringify({
-                                            appName: sapConfig.bspDeployTarget,
-                                            zipFile: zipBase64,
-                                        });
-
-                                        // the client will do the sending of the requests
-                                        html = processingHtml.replace('{0}', JSON.stringify(sapConfig))
-                                                             .replace('{1}', cookieHeader)
-                                                             .replace('{2}', data);
-                                        res.end(html);
-                                    });
-                                })
-                                .catch((err) => {
-                                    const errStr = JSON.stringify(err, null, 4);
-                                    util.log(`Error occurred: ${errStr}"`);
-                                    res.end(errorHtml.replace('{0}', errStr));
-                                });
-                        });
-                },
-            };
-
+        // eslint-disable-next-line global-require
+        const serverStartedPromise = require('./gulpTaskFiles/server.js');
+        serverStartedPromise.then(() => {
             browserSyncStarted = true;
-            // config and start browsersync
-            browserSync.init({
-                server: {
-                    baseDir: `./${PATHS.build.root}`,
-                    index: 'index.html',
-                    middleware: [sapProxy, libProxy,
-                        // order matters here as routes are matched in order
-                        deploymentConfirmed, deploymentConfirmation],
-                },
-                online: false,
-                port: sapConfig.localDevPort,
-                snippetOptions: {
-                    blacklist: ['/deploy', '/deploy/yes'],
-                },
-            });
-        });
-        electron.on('auth-failure', () => {
-            process.exit(1);
-            throw new Error('Authentication Failure');
         });
     }
 
