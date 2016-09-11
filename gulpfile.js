@@ -16,11 +16,11 @@ const cssmin      = require('gulp-cssmin');
 const eslint      = require('gulp-eslint');
 const htmlreplace = require('gulp-html-replace');
 const htmlmin     = require('gulp-htmlmin');
+const rename      = require('gulp-rename');
 const sass        = require('gulp-sass');
 const scsslint    = require('gulp-scss-lint');
 const size        = require('gulp-size');
 const sourcemaps  = require('gulp-sourcemaps');
-// const uglify      = require('gulp-uglify');
 const ui5preload  = require('gulp-ui5-preload');
 const util        = require('gulp-util');
 const proxy       = require('http-proxy-middleware');
@@ -98,20 +98,11 @@ const PATHS = {
         json: [`${SRC}/js/**/*.json`],
     },
     build: {
-        prd: {
-            jsLib: 'common.min.js',
-            cssLib: 'common.min.css',
-            root: 'release',
-            js: 'app.min.js',
-            css: 'styles.min.css',
-        },
-        dev: {
-            jsLib: 'common.js',
-            cssLib: 'common.css',
-            root: 'build',
-            js: 'app.js',
-            css: 'styles.css',
-        },
+        jsLib: 'common.js',
+        cssLib: 'common.css',
+        root: 'build',
+        js: 'app.js',
+        css: 'styles.css',
     },
     zip: 'zip',
 };
@@ -137,8 +128,7 @@ const SIZE_OPTS = {
  */
 gulp.task('clean', (cb) => {
     del([
-        PATHS.build.dev.root,
-        PATHS.build.prd.root,
+        PATHS.build.root,
         PATHS.zip,
     ]);
     cb(null);
@@ -147,46 +137,43 @@ gulp.task('clean', (cb) => {
 /**
  * copies the fonts into the dir
  */
-function buildFonts(env) {
+function buildFonts() {
     return gulp.src(PATHS.src.fonts)
         // print out the file deets
         .pipe(size(SIZE_OPTS))
         // write the result
-        .pipe(gulp.dest(`${PATHS.build[env].root}/font`));
+        .pipe(gulp.dest(`${PATHS.build.root}/font`));
 }
-gulp.task('build-dev-font', () => buildFonts('dev'));
-gulp.task('build-prd-font', () => buildFonts('prd'));
+gulp.task('build-font', buildFonts);
 
 /**
  * copies the i18n into the dir
  */
-function buildI18n(env) {
+function buildI18n() {
     return gulp.src(PATHS.src.i18n)
         // print out the file deets
         .pipe(size(SIZE_OPTS))
         // write the result
-        .pipe(gulp.dest(`${PATHS.build[env].root}/i18n`));
+        .pipe(gulp.dest(`${PATHS.build.root}/i18n`));
 }
-gulp.task('build-dev-i18n', () => buildI18n('dev'));
-gulp.task('build-prd-i18n', () => buildI18n('prd'));
+gulp.task('build-i18n', buildI18n);
 
 /**
  * copies json files into the dir
  */
-function buildJson(env) {
+function buildJson() {
     return gulp.src(PATHS.src.json)
         // print out the file deets
         .pipe(size(SIZE_OPTS))
         // write the result
-        .pipe(gulp.dest(`${PATHS.build[env].root}`));
+        .pipe(gulp.dest(`${PATHS.build.root}`));
 }
-gulp.task('build-dev-json', () => buildJson('dev'));
-gulp.task('build-prd-json', () => buildJson('prd'));
+gulp.task('build-json', buildJson);
 
 /**
  * Builds the XML and transforms the resource tags
  */
-function buildXml(env, type) {
+function buildXml(type) {
     return gulp.src(PATHS.src[`${type}Xml`])
         // print the files
         .pipe(size(SIZE_OPTS))
@@ -199,19 +186,16 @@ function buildXml(env, type) {
             caseSensitive: true,
         }))
         // write the file
-        .pipe(gulp.dest(`${PATHS.build[env].root}/${type}`));
+        .pipe(gulp.dest(`${PATHS.build.root}/${type}`));
 }
-gulp.task('build-dev-view-xml', () => buildXml('dev', 'view'));
-gulp.task('build-prd-view-xml', () => buildXml('prd', 'view'));
-gulp.task('build-dev-fragment-xml', () => buildXml('dev', 'fragment'));
-gulp.task('build-prd-fragment-xml', () => buildXml('prd', 'fragment'));
-gulp.task('build-dev-xml', ['build-dev-view-xml', 'build-dev-fragment-xml']);
-gulp.task('build-prd-xml', ['build-prd-view-xml', 'build-prd-fragment-xml']);
+gulp.task('build-view-xml', () => buildXml('view'));
+gulp.task('build-fragment-xml', () => buildXml('fragment'));
+gulp.task('build-xml', ['build-view-xml', 'build-fragment-xml']);
 
 /**
  * Compiles the TSX, then browserifies it into a single file
  */
-function buildJs(env) {
+function buildJs() {
     return gulp.src(PATHS.src.js[0])
                 // print the files
                 .pipe(size(SIZE_OPTS))
@@ -228,24 +212,23 @@ function buildJs(env) {
                 // write the sourcemap
                 .pipe(sourcemaps.write('.'))
                 // write the js file
-                .pipe(gulp.dest(`${PATHS.build[env].root}`));
+                .pipe(gulp.dest(`${PATHS.build.root}`));
 }
-gulp.task('build-dev-js', () => buildJs('dev'));
-gulp.task('build-prd-js', () => buildJs('prd'));
+gulp.task('build-js', buildJs);
 
 /**
  * Builds the HTML and transforms the resource tags
  */
-function buildHtml(env) {
+function buildHtml() {
     return gulp.src(PATHS.src.html)
         // print the files
         .pipe(size(SIZE_OPTS))
         // insert the references to the built files
         .pipe(htmlreplace({
-            js: `js/${PATHS.build[env].js}`,
-            jsLib: `lib/${PATHS.build[env].jsLib}`,
-            cssLib: `lib/${PATHS.build[env].cssLib}`,
-            css: `css/${PATHS.build[env].css}`,
+            js: `js/${PATHS.build.js}`,
+            jsLib: `lib/${PATHS.build.jsLib}`,
+            cssLib: `lib/${PATHS.build.cssLib}`,
+            css: `css/${PATHS.build.css}`,
         }))
         // minify the HTML
         .pipe(htmlmin({
@@ -257,15 +240,14 @@ function buildHtml(env) {
             keepClosingSlash: true,
         }))
         // write the file
-        .pipe(gulp.dest(PATHS.build[env].root));
+        .pipe(gulp.dest(PATHS.build.root));
 }
-gulp.task('build-dev-html', () => buildHtml('dev'));
-gulp.task('build-prd-html', () => buildHtml('prd'));
+gulp.task('build-html', buildHtml);
 
 /**
  * Lints and compiles SASS, then concats and mins the css
  */
-function buildCss(env) {
+function buildCss() {
     let hasBeeped = false;
     function myCustomReporter(file) {
         // this looks exactly like the default error printer
@@ -297,22 +279,24 @@ function buildCss(env) {
         // print out the file deets
         .pipe(size(SIZE_OPTS))
         // concat the files together
-        .pipe(concat(PATHS.build[env].css))
-        // if doing a prd build, minify it
-        .pipe(env === 'prd' ? cssmin() : util.noop())
+        .pipe(concat(PATHS.build.css))
         // write the sourcemaps
         .pipe(sourcemaps.write('.'))
         // write the result
-        .pipe(gulp.dest(`${PATHS.build[env].root}/css`));
+        .pipe(gulp.dest(`${PATHS.build.root}/css`))
+        // minify it as well
+        .pipe(cssmin())
+        .pipe(rename({ extname: '.min.js' }))
+        // write the result
+        .pipe(gulp.dest(`${PATHS.build.root}/css`));
 }
-gulp.task('build-dev-css', () => buildCss('dev'));
-gulp.task('build-prd-css', () => buildCss('prd'));
+gulp.task('build-css', buildCss);
 
 /**
  * builds the Component-preload.js file
  */
-function buildUi5Component(env) {
-    const root = PATHS.build[env].root;
+function buildUi5Component() {
+    const root = PATHS.build.root;
     return gulp.src([
         `${root}/**/*.js`,
         `${root}/**/*.xml`,
@@ -324,18 +308,14 @@ function buildUi5Component(env) {
     }))
     .pipe(gulp.dest(root));
 }
-gulp.task('build-dev-ui5-component',
-    ['build-dev-js', 'build-dev-html', 'build-dev-css', 'build-dev-font', 'build-dev-i18n', 'build-dev-json', 'build-dev-xml'],
-    () => buildUi5Component('dev'));
-gulp.task('build-prd-ui5-component',
-    ['build-prd-js', 'build-prd-html', 'build-prd-css', 'build-prd-font', 'build-prd-i18n', 'build-prd-json', 'build-prd-xml'],
-    () => buildUi5Component('prd'));
+gulp.task('build-ui5-component',
+    ['build-js', 'build-html', 'build-css', 'build-font', 'build-i18n', 'build-json', 'build-xml'],
+    buildUi5Component);
 
 /**
  * Watches for changes
  */
 function watch(isServer) {
-    const env = 'dev';
     let browserSyncStarted = false;
 
     if (isServer) {
@@ -422,9 +402,9 @@ function watch(isServer) {
                             util.log('Successful.');
 
                             // zip the build folder
-                            const zipFileName = `${zipPath}/${env}.zip`;
+                            const zipFileName = `${zipPath}/div.zip`;
                             util.log(`Zipping build directory to "${zipFileName}"...`);
-                            return zipFolder(PATHS.build[env].root, zipFileName)
+                            return zipFolder(PATHS.build.root, zipFileName)
                                 .then((err) => {
                                     let html;
 
@@ -471,7 +451,7 @@ function watch(isServer) {
             // config and start browsersync
             browserSync.init({
                 server: {
-                    baseDir: `./${PATHS.build[env].root}`,
+                    baseDir: `./${PATHS.build.root}`,
                     index: 'index.html',
                     middleware: [sapProxy, libProxy,
                         // order matters here as routes are matched in order
@@ -499,10 +479,10 @@ function watch(isServer) {
         gulp.watch(PATHS.src[key], () => {
             // rebuild
             notify(`Recompiling ${key}`);
-            func(env).on('end', () => {
+            func().on('end', () => {
                 // rebuild component-preload.js
                 notify('Rebuilding Component-preload.js');
-                const res = buildUi5Component(env);
+                const res = buildUi5Component();
                 // reload the browser
                 isServer && browserSyncStarted && res.on('end', browserSync.reload);
             });
@@ -512,7 +492,7 @@ function watch(isServer) {
     // watch css and pipe into browser-sync when done
     gulp.watch(PATHS.src.css, () => {
         notify('Recompiling CSS');
-        const res = buildCss(env);
+        const res = buildCss();
         isServer && browserSyncStarted && res.pipe(browserSync.stream({ match: '**/*.css' }));
     });
 
@@ -527,8 +507,7 @@ function watch(isServer) {
 gulp.task('watch', () => watch(true));
 gulp.task('watch-no-server', () => watch(false));
 
-gulp.task('build-dev', ['build-dev-ui5-component']);
-gulp.task('build-prd', ['build-prd-ui5-component']);
+gulp.task('build', ['build-ui5-component']);
 
-gulp.task('default', ['build-dev']);
+gulp.task('default', ['build']);
 
