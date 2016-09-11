@@ -26,7 +26,7 @@ function watch() {
     let server = null;
 
     // start the server if requested
-    if (util.env.server) {
+    if (util.env.server !== false) {
         const serverOptions = {
             useAuth: util.env.auth,
             useProxy: util.env.proxy,
