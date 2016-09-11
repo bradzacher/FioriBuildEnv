@@ -191,7 +191,7 @@ gulp.task('build-fragment-xml', () => buildXml('fragment'));
 gulp.task('build-xml', ['build-view-xml', 'build-fragment-xml']);
 
 /**
- * Compiles the TSX, then browserifies it into a single file
+ * Compiles the JS, then browserifies it into a single file
  */
 function buildJs() {
     return gulp.src(PATHS.src.js[0])
