@@ -28,7 +28,6 @@ function watch(isServer) {
     // start the server if requested
     if (isServer) {
         // eslint-disable-next-line global-require
-        const serverStartedPromise = require('./gulpTaskFiles/server.js');
         serverStartedPromise.then(() => {
             // fetch the server instance
             server = browserSync.get('UI5-Server');
