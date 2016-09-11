@@ -22,12 +22,18 @@ require(`${tasksDir}/clean.js`);
 /**
  * Watches for changes
  */
-function watch(isServer) {
+function watch() {
     let server = null;
 
     // start the server if requested
-    if (isServer) {
+    if (util.env.server) {
+        const serverOptions = {
+            useAuth: util.env.auth,
+            useProxy: util.env.proxy,
+        };
+
         // eslint-disable-next-line global-require
+        const serverStartedPromise = require('./gulpTaskFiles/server.js')(serverOptions);
         serverStartedPromise.then(() => {
             // fetch the server instance
             server = browserSync.get('UI5-Server');
@@ -71,8 +77,7 @@ function watch(isServer) {
     watchFiles('fonts', buildFont);
     watchFiles('js', buildJs);
 }
-gulp.task('watch', () => watch(true));
-gulp.task('watch-no-server', () => watch(false));
+gulp.task('watch', watch);
 
 gulp.task('build', ['build-ui5-component']);
 
