@@ -28,8 +28,8 @@ A gulp-based build environment for Fiori development, including deployment to a 
 |
 ├── /.vscode/                   # visual studio code config files
 ├── /gulpTaskFiles/             # files relating to the gulp tasks
-|   ├── /tasks/                 # code for individual gulp tasks
-|   └── /sap-config.json        # config file for the build processes
+│   ├── /tasks/                 # code for individual gulp tasks
+│   └── /sap-config.json        # config file for the build processes
 ├── /node_modules/              # 3rd-party libraries and utilities
 ├── /src/                       # The source code of the application
 │   ├── /index.html             # Base HTML page
@@ -37,6 +37,7 @@ A gulp-based build environment for Fiori development, including deployment to a 
 │   │   ├── /controller/        # Controller JavaScript files
 │   │   ├── /i18n/              # Internationalisation *.properties files
 │   │   ├── /view/              # View XML files
+│   │   ├── /fragment/          # Fragment XML files
 │   │   ├── /Component.js       # Component definition file
 │   │   └── /manifest.json      # Component manifest file
 |   └── /css/                   # StyleSheet files (scss)
@@ -53,7 +54,7 @@ A gulp-based build environment for Fiori development, including deployment to a 
 - Watches for changes to all buildable files, and
 - Rebuilds files on change.
 
-The browsersync server contains middleware to auto-proxy all requests to your desired endpoint.
+The browsersync server will automatically proxy all OData service requests to your desired endpoint.
 This task will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
 
 ```JavaScript
@@ -65,13 +66,19 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
 }
 ```
 
-### gulp watch-no-server
+#### flags
 
-Watches for changes to all buildable files and rebuilds on change.
+- ```--no-server```
+    - Watches for changes to all buildable files and rebuilds on change.
+- ```--no-auth```
+    - Skips fetching an auth token from the SAP.
+- ```--no-proxy```
+    - Disables the proxy to the SAP server, and the authentication
 
 ### gulp build
 
 Builds the source code into the build release version of the code,
+
 
 # Deployment
 
