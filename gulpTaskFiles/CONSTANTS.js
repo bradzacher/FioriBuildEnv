@@ -1,5 +1,7 @@
 'use strict';
 
+const util = require('gulp-util');
+
 // directory definitions
 const SRC = 'src';
 const PATHS = {
@@ -21,4 +23,19 @@ const PATHS = {
     zip: 'zip',
 };
 
-module.exports = PATHS;
+// options for the size module
+const SIZE_OPTS = {
+    showFiles: true,
+    gzip: true,
+};
+
+/**
+ * Emits a beep
+ */
+const beep = function beep() { util.beep(); };
+
+module.exports = {
+    PATHS,
+    SIZE_OPTS,
+    beep,
+};
