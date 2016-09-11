@@ -1,21 +1,26 @@
 # FioriBuildEnv
-A gulp-based build environment for Fiori, including deployment to a ERP/Gateway server
+A gulp-based build environment for Fiori development, including deployment to a ERP/Gateway server
+
+# Requirements
+
+- NodeJS v6.5 or greater (https://nodejs.org/en/)
+- Ruby v2.0 or greater (http://rubyinstaller.org/)
+- (Recommended) VS Code (https://code.visualstudio.com/)
 
 # Features
 
-- Lints JavaScript using eslint against the airbnb ruleset
-- Transpiles JavaScript files to ES5 using Babel
-- Transpiles SASS to CSS and concatenates to a single CSS file
-- Lints SASS using SCSSLint
-- Builds JavaScript and CSS source maps
-- Minifies XML and HTML
-- Builds a Component-preload.js containing all XML and JavaScript files
-- Options to automatically add JavaScript and CSS library files into index.html
+- Lints JavaScript using eslint against the airbnb ruleset (a slightly modified set of rules).
+- Lints SASS using SCSSLint.
+- Transpiles JavaScript files to ES5 using Babel.
+- Transpiles SASS to CSS and concatenates to a single CSS file.
+- Builds JavaScript and CSS source maps for easier browser debugging.
+- Minifies XML and HTML.
+- Builds a Component-preload.js containing all XML and JavaScript files.
 - Incudes a local browsersync development server with:
-    - Proxy middleware to forward OData service calls to your gateway server
-    - Easy service authentication
-    - Automatic reloads on source code changes
-- One click deployment to an ERP/Gateway server
+    - Easy service authentication,
+    - Proxy middleware to forward OData service calls to your gateway server,
+    - Automatic reloads on source code changes.
+- One click deployment to an ERP/Gateway server.
 
 # File Structure
 
@@ -23,6 +28,8 @@ A gulp-based build environment for Fiori, including deployment to a ERP/Gateway 
 |
 ├── /.vscode/                   # visual studio code config files
 ├── /gulpTaskFiles/             # files relating to the gulp tasks
+|   ├── /tasks/                 # code for individual gulp tasks
+|   └── /sap-config.json        # config file for the build processes
 ├── /node_modules/              # 3rd-party libraries and utilities
 ├── /src/                       # The source code of the application
 │   ├── /index.html             # Base HTML page
@@ -33,8 +40,7 @@ A gulp-based build environment for Fiori, including deployment to a ERP/Gateway 
 │   │   ├── /Component.js       # Component definition file
 │   │   └── /manifest.json      # Component manifest file
 |   └── /css/                   # StyleSheet files (scss)
-├── /build/                     # development build files
-├── /release/                   # production build files
+├── /build/                     # build directory
 └── /zip/                       # deployment zips
 ```
 
@@ -42,7 +48,7 @@ A gulp-based build environment for Fiori, including deployment to a ERP/Gateway 
 
 ### glup watch
 
-- Launches an electron window to fetch login cookies (note that ADFS federated logins will require you to enter user/password, as EPM is not yet supported by Chrome),
+- Launches an electron window to fetch login cookies,
 - Starts the browsersync web server,
 - Watches for changes to all buildable files, and
 - Rebuilds files on change.
@@ -63,9 +69,9 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
 
 Watches for changes to all buildable files and rebuilds on change.
 
-### gulp build-dev, gulp build-prd
+### gulp build
 
-Builds the development/production version of the code
+Builds the source code into the build release version of the code,
 
 # Deployment
 
