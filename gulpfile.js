@@ -78,4 +78,3 @@ gulp.task('watch-no-server', () => watch(false));
 gulp.task('build', ['build-ui5-component']);
 
 gulp.task('default', ['build']);
-

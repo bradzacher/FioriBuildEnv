@@ -16,10 +16,9 @@ const readFile    = Promise.denodeify(fs.readFile);
  * CONFIG
  ************************/
 // directory definitions
-const PATHS = require('./PATHS.js');
+const { PATHS, readConfig } = require('./CONSTANTS.js');
 
 // sap config
-const readConfig = require('./readConfig.js');
 const sapConfig = readConfig();
 
 // unfortunately it is easy to cause a stackoverflow when using String.fromCharCode with a large enough array.
