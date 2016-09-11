@@ -229,7 +229,6 @@ function buildUi5Component() {
     ])
     .pipe(ui5preload({
         base: root,
-        namespace: sapConfig.jsNamespace,
     }))
     .pipe(gulp.dest(root));
 }

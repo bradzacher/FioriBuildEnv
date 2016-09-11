@@ -1,6 +1,5 @@
 {
     "gateway": "https://sapgwdev001.etsa.com.au:2080",
-    "jsNamespace": "poleloadcalculator",
     "bspDeployTarget": "zbrad1",
     "deploymentService": "etsa/sapui5_deploy_srv"
 }

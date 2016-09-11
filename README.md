@@ -55,7 +55,6 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
     gateway: '<url>',            // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
     localDevPort: '<port>',      // the port that browsersync will run off (defaults to 3000)
     bspDeployTarget: '<name>',   // the name of the BSP application to which the auto deployment script will deploy to
-    jsNamespace: '<ns>',         // the namespace for your UI5 code
     deploymentService: '<name>', // the name of the OData service which you setup (as per the deployment section below)
 }
 ```

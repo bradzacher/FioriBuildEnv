@@ -34,7 +34,6 @@ const readConfig = () => {
         gateway: null, // the url of the gateway server
         localDevPort: '3000', // the port which the local server will run from
         bspDeployTarget: null, // the name of the bsp application
-        jsNamespace: null, // the namespace for the javascript components
     }, sapConfig);
 };
 
