@@ -3,11 +3,8 @@
 /*************************
  * REQUIRES
  ************************/
-const browserSync = require('browser-sync').create();
-const btoa        = require('btoa');
+const browserSync = require('browser-sync');
 const del         = require('del');
-const extend      = require('extend');
-const fs          = require('fs');
 const gulp        = require('gulp');
 const babel       = require('gulp-babel');
 const concat      = require('gulp-concat');
@@ -23,67 +20,15 @@ const sourcemaps  = require('gulp-sourcemaps');
 const ui5preload  = require('gulp-ui5-preload');
 const util        = require('gulp-util');
 
-// sap config
-let sapConfig;
-const readConfig = () => {
-    const configFile = './gulpTaskFiles/sap-config.json';
-
-    // delete from cache
-    // modified from https://stackoverflow.com/a/14801711/3736051
-    // Resolve the module identified by the specified name
-    let mod = require.resolve(configFile);
-
-    // Check if the module has been resolved and found within the cache
-    // eslint-disable-next-line no-cond-assign
-    if (mod && ((mod = require.cache[mod]) !== undefined)) {
-        // Recursively go over the results
-        (function traverse(module) {
-            // Go over each of the module's children and
-            // traverse them
-            module.children.forEach((child) => {
-                traverse(child);
-            });
-
-            // Call the specified callback providing the
-            // found cached module
-            delete require.cache[mod.id];
-        }(mod));
-    }
-
-    // eslint-disable-next-line global-require
-    sapConfig = require(configFile);
-    sapConfig = extend({
-        gateway: null, // the url of the gateway server
-        localDevPort: '3000', // the port which the local server will run from
-        bspDeployTarget: null, // the name of the bsp application
-        jsNamespace: null, // the namespace for the javascript components
-    }, sapConfig);
-};
-readConfig();
 
 /*************************
  * CONFIG
  ************************/
+// sap config
+const sapConfig = require('./gulpTaskFiles/readConfig.js')();
+
 // directory definitions
-const SRC = 'src';
-const PATHS = {
-    src: {
-        js: [`${SRC}/js/**/*.js`], // [`${SRC}/js/**/*.ts`, `${SRC}/js/**/*.tsx`],
-        css: [`${SRC}/css/**/*.scss`],
-        fonts: [`${SRC}/fonts/*`],
-        html: [`${SRC}/*.html`],
-        viewXml: [`${SRC}/js/view/**/*.xml`],
-        fragmentXml: [`${SRC}/js/fragment/**/*.xml`],
-        i18n: [`${SRC}/js/i18n/**/*.properties`],
-        json: [`${SRC}/js/**/*.json`],
-    },
-    build: {
-        root: 'build',
-        js: 'app.js',
-        css: 'styles.css',
-    },
-    zip: 'zip',
-};
+const PATHS = require('./gulpTaskFiles/PATHS.js');
 
 /**
  * Emits a beep
@@ -296,18 +241,19 @@ gulp.task('build-ui5-component',
  * Watches for changes
  */
 function watch(isServer) {
-    let browserSyncStarted = false;
+    let server = null;
 
     if (isServer) {
         // eslint-disable-next-line global-require
         const serverStartedPromise = require('./gulpTaskFiles/server.js');
         serverStartedPromise.then(() => {
-            browserSyncStarted = true;
+            // fetch the server instance
+            server = browserSync.get('UI5-Server');
         });
     }
 
     function notify(msg) {
-        isServer && browserSyncStarted && browserSync.notify(msg);
+        isServer && server && server.notify(msg);
         util.log(msg);
     }
     function watchUi5(key, func) {
@@ -320,7 +266,7 @@ function watch(isServer) {
                 notify('Rebuilding Component-preload.js');
                 const res = buildUi5Component();
                 // reload the browser
-                isServer && browserSyncStarted && res.on('end', browserSync.reload);
+                isServer && server && res.on('end', server.reload);
             });
         });
     }
@@ -329,7 +275,7 @@ function watch(isServer) {
     gulp.watch(PATHS.src.css, () => {
         notify('Recompiling CSS');
         const res = buildCss();
-        isServer && browserSyncStarted && res.pipe(browserSync.stream({ match: '**/*.css' }));
+        isServer && server && res.pipe(server.stream({ match: '**/*.css' }));
     });
 
     watchUi5('html', buildHtml);

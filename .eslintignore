@@ -1,6 +1,5 @@
 build/
 zip/
 release/
-gulpTaskFiles/
 .vscode
 **/lib/**

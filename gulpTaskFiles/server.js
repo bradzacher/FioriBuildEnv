@@ -1,14 +1,26 @@
 'use strict';
 
+const browserSync = require('browser-sync').create('UI5-Server');
 const btoa        = require('btoa');
 const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js' });
 const fs          = require('fs');
 const proxy       = require('http-proxy-middleware');
+const util        = require('gulp-util');
 
 const Promise     = require('promise');
 const zipFolder   = Promise.denodeify(require('zip-folder'));
 const mkdirp      = Promise.denodeify(require('mkdirp'));
 const readFile    = Promise.denodeify(fs.readFile);
+
+/*************************
+ * CONFIG
+ ************************/
+// directory definitions
+const PATHS = require('./PATHS.js');
+
+// sap config
+const readConfig = require('./readConfig.js');
+const sapConfig = readConfig();
 
 // unfortunately it is easy to cause a stackoverflow when using String.fromCharCode with a large enough array.
 // this function is a workaround for that issue.
@@ -158,7 +170,7 @@ const serverStartedPromise = new Promise((resolve, reject) => {
                 index: 'index.html',
                 middleware: [sapProxy, libProxy,
                     // order matters here as routes are matched in order
-                    deploymentConfirmed, deploymentConfirmation
+                    deploymentConfirmed, deploymentConfirmation,
                 ],
             },
             online: false,
