@@ -18,6 +18,7 @@ const buildJson         = require(`${tasksDir}/build-json.js`);
 const buildUi5Component = require(`${tasksDir}/build-ui5-component.js`);
 const buildXml          = require(`${tasksDir}/build-xml.js`);
 require(`${tasksDir}/clean.js`);
+require(`${tasksDir}/deploy.js`);
 
 /**
  * Watches for changes
