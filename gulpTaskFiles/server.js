@@ -85,13 +85,13 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                 let confirmationHtml;
                 let processingHtml;
                 let errorHtml;
-                readFile('./gulpTaskFiles/confirmation.html', 'utf8').then((text) => {
+                readFile('./deploy/confirmation.html', 'utf8').then((text) => {
                     confirmationHtml = text;
                 });
-                readFile('./gulpTaskFiles/processing.html', 'utf8').then((text) => {
+                readFile('./deploy/processing.html', 'utf8').then((text) => {
                     processingHtml = text;
                 });
-                readFile('./gulpTaskFiles/error.html', 'utf8').then((text) => {
+                readFile('./deploy/error.html', 'utf8').then((text) => {
                     errorHtml = text;
                 });
 
