@@ -113,7 +113,7 @@
                 "off"
             ],
             "no-param-reassign": [
-                "error",
+                "warn",
                 {
                     "props": false
                 }
