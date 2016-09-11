@@ -94,7 +94,7 @@ function buildJson() {
 gulp.task('build-json', buildJson);
 
 /**
- * Builds the XML and transforms the resource tags
+ * Builds the XML
  */
 function buildXml(type) {
     return gulp.src(PATHS.src[`${type}Xml`])
@@ -252,7 +252,7 @@ function watch(isServer) {
     }
 
     function notify(msg) {
-        isServer && server && server.notify(msg);
+        server && server.notify(msg);
         util.log(msg);
     }
     function watchUi5(key, func) {
@@ -265,7 +265,7 @@ function watch(isServer) {
                 notify('Rebuilding Component-preload.js');
                 const res = buildUi5Component();
                 // reload the browser
-                isServer && server && res.on('end', server.reload);
+                server && res.on('end', server.reload);
             });
         });
     }
@@ -274,7 +274,7 @@ function watch(isServer) {
     gulp.watch(PATHS.src.css, () => {
         notify('Recompiling CSS');
         const res = buildCss();
-        isServer && server && res.pipe(server.stream({ match: '**/*.css' }));
+        server && res.pipe(server.stream({ match: '**/*.css' }));
     });
 
     watchUi5('html', buildHtml);
