@@ -1,5 +1,5 @@
 # FioriBuildEnv
-A gulp-based build environment for Fiori development, including deployment to a ERP/Gateway server
+A gulp-based build environment for Fiori development, including deployment to an ERP/Gateway server
 
 # Requirements
 
@@ -9,11 +9,13 @@ A gulp-based build environment for Fiori development, including deployment to a 
 
 # Features
 
-- Lints JavaScript using eslint against the airbnb ruleset (a slightly modified set of rules).
-- Lints SASS using SCSSLint.
-- Transpiles JavaScript files to ES5 using Babel.
-- Transpiles SASS to CSS and concatenates to a single CSS file.
-- Builds JavaScript and CSS source maps for easier browser debugging.
+- Transpilation:
+    - JavaScript files to ES5 using Babel.
+    - SASS to CSS.
+- Linting:
+    - JavaScript using ESlint against (a slightly modified) airbnb ruleset.
+    - SASS using SCSSLint.
+- Generates JavaScript and CSS source maps for easier browser debugging.
 - Minifies XML and HTML.
 - Builds a Component-preload.js containing all XML and JavaScript files.
 - Incudes a local browsersync development server with:
@@ -49,12 +51,12 @@ A gulp-based build environment for Fiori development, including deployment to a 
 
 ### glup watch
 
-- Launches an electron window to fetch login cookies,
-- Starts the browsersync web server,
+- Fetches login cookies from the SAP server,
+- Starts the local development server with proxies,
 - Watches for changes to all buildable files, and
 - Rebuilds files on change.
 
-The browsersync server will automatically proxy all OData service requests to your desired endpoint.
+The development server will automatically proxy all OData service requests to your desired endpoint.
 This task will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
 
 ```JavaScript
@@ -83,10 +85,10 @@ Builds the source code into the build release version of the code,
 # Deployment
 
 1. Obtain a lock on the BSP application.
-2. Run the gulp watch task.
-3. Open ```http://localhost:3000/deploy``` in your browser (where 3000 is the dev port defined in your config)
-4. Follow the prompts.
+1. Run ``gulp deploy``.
+1. Follow the prompts.
 
+Alternately if you already have a watch server running, you can just open ```http://localhost:3000/deploy``` in your browser (where 3000 is the dev port defined in your config).
 
 # Deployment to SAP
 

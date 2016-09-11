@@ -5,6 +5,7 @@
     "author": "Brad Zacher",
     "license": "ISC",
     "dependencies": {
+        "babel": "^6.5.2",
         "babel-preset-es2015": "^6.9.0",
         "browser-sync": "^2.12.3",
         "btoa": "^1.1.2",
