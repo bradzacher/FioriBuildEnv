@@ -55,8 +55,8 @@ function electronAuth(resolveAuth, rejectAuth) {
         resolveAuth(`${authCookie.name}=${authCookie.value}`);
     });
 
-    electron.on('auth-failure', () => {
-        rejectAuth('Authentication Failure');
+    electron.on('auth-failure', (err) => {
+        rejectAuth(`Authentication Failure: ${err}`);
     });
 }
 
@@ -69,16 +69,15 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
         useAuth = false;
     }
 
-    const serverStartedPromise = new Promise((resolve, reject) => {
+    const serverStartedPromise = new Promise((resolve) => {
         let authTokenPromise = Promise.resolve('');
         if (useAuth) {
             // get auth data via an electron window, if requested
             authTokenPromise = new Promise(electronAuth);
         }
         authTokenPromise.catch((err) => {
+            util.log(err);
             process.exit(1);
-            reject();
-            throw err;
         });
         authTokenPromise.then((cookieHeader) => {
             let middleware = [];

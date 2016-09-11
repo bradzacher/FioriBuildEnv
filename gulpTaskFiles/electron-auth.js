@@ -28,13 +28,7 @@ function createWindow() {
         autoHideMenuBar: true,
     });
 
-    // and gwd to get an auth cookie.
-    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`, {
-        // spoof UA to look like IE11 so that we can work around the missing whitelist chrome UA
-        userAgent: 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-    });
-
-    // listnen for redirect requests
+    // listen for redirect requests
     win.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {
         // this redirect in particular means SAP has received the SAML token and created the cookies
         if (oldUrl.indexOf(`${sapConfig.gateway}/sap/saml2/sp/acs/100`) !== -1 &&
@@ -56,6 +50,28 @@ function createWindow() {
         }
     });
 
+    // listen for load failures
+    win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        client.sendMessage('auth-failure', errorDescription);
+    });
+
+    // and gwd to get an auth cookie.
+    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`, {
+        // spoof UA to look like IE11 so that we can work around the missing whitelist chrome UA
+        userAgent: 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+    });
+
+    win.on('close', (e) => {
+        if (!hasAuthed) {
+            // send the failure message
+            client.sendMessage('auth-failure', 'Electron window was closed.');
+            // stop the close or else our message won't get through'
+            e.preventDefault();
+            // quit the app cos we're all done
+            setTimeout(app.quit, 500);
+        }
+    });
+
     // Emitted when the window is closed.
     win.on('closed', () => {
         // Dereference the window object, usually you would store windows
@@ -65,7 +81,6 @@ function createWindow() {
     });
 
     client = electronConnect.create(win);
-    client.sendMessage('test');
 }
 
 // This method will be called when Electron has finished
