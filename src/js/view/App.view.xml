@@ -3,7 +3,7 @@
 	xmlns="sap.m"
 	xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true">
-	<App class="myAppDemoWT">
+	<App class="my-app-demo-wt">
 		<pages>
 			<Page title="{i18n>homePageTitle}">
 				<headerContent>

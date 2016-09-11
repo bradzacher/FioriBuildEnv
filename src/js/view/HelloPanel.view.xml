@@ -15,14 +15,14 @@
 			<Button
 				text="{i18n>showHelloButtonText}"
 				press="onShowHello"
-				class="myCustomButton"/>
+				class="my-custom-button"/>
 			<Input
 				value="{/recipient/name}"
 				valueLiveUpdate="true"
 				width="60%" />
 			<Text
 				text="Hello {/recipient/name}"
-				class="sapUiSmallMargin sapThemeHighlight-asColor myCustomText"/>
+				class="sapUiSmallMargin sapThemeHighlight-asColor my-custom-text"/>
 		</content>
 	</Panel>
 </mvc:View>

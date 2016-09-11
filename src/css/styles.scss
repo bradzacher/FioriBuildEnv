@@ -1,11 +1,15 @@
-html[dir="ltr"] .myAppDemoWT .myCustomButton.sapMBtn {
- 	margin-right: 0.125rem
+// sap standard css class
+// scss-lint:disable SelectorFormat
+html[dir="ltr"] .my-app-demo-wt .my-custom-button.sapMBtn {
+    margin-right: 0.125rem;
 }
 
-html[dir="rtl"] .myAppDemoWT .myCustomButton.sapMBtn {
- 	margin-left: 0.125rem
+// sap standard css class
+// scss-lint:disable SelectorFormat
+html[dir="rtl"] .my-app-demo-wt .my-custom-button.sapMBtn {
+    margin-left: 0.125rem;
 }
 
-.myAppDemoWT .myCustomText {
-	font-weight: bold;
+.my-app-demo-wt .my-custom-text {
+    font-weight: bold;
 }
