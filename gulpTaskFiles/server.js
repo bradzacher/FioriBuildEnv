@@ -64,6 +64,11 @@ function electronAuth(resolveAuth, rejectAuth) {
  * Fetches the auth tokens, and starts the browsersync server
  */
 function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
+    if (!useProxy) {
+        // no point using auth if we don't have the proxy!
+        useAuth = false;
+    }
+
     const serverStartedPromise = new Promise((resolve, reject) => {
         let authTokenPromise = Promise.resolve('');
         if (useAuth) {
@@ -76,100 +81,99 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
             throw err;
         });
         authTokenPromise.then((cookieHeader) => {
-            let confirmationHtml;
-            let processingHtml;
-            let errorHtml;
-            readFile('./gulpTaskFiles/confirmation.html', 'utf8').then((text) => {
-                confirmationHtml = text;
-            });
-            readFile('./gulpTaskFiles/processing.html', 'utf8').then((text) => {
-                processingHtml = text;
-            });
-            readFile('./gulpTaskFiles/error.html', 'utf8').then((text) => {
-                errorHtml = text;
-            });
+            let middleware = [];
+            if (useProxy) {
+                let confirmationHtml;
+                let processingHtml;
+                let errorHtml;
+                readFile('./gulpTaskFiles/confirmation.html', 'utf8').then((text) => {
+                    confirmationHtml = text;
+                });
+                readFile('./gulpTaskFiles/processing.html', 'utf8').then((text) => {
+                    processingHtml = text;
+                });
+                readFile('./gulpTaskFiles/error.html', 'utf8').then((text) => {
+                    errorHtml = text;
+                });
 
-            // called when the dev goes to http://localhost:<port>/deploy
-            // displays a confirmation window for deployment
-            const deploymentConfirmation = {
-                route: '/deploy',
-                handle: (req, res) => {
-                    // re-read the config so it can be changed without restarting gulp
-                    readConfig();
+                // called when the dev goes to http://localhost:<port>/deploy
+                // displays a confirmation window for deployment
+                const deploymentConfirmation = {
+                    route: '/deploy',
+                    handle: (req, res) => {
+                        // re-read the config so it can be changed without restarting gulp
+                        readConfig();
 
-                    util.log('Request for /deploy received');
+                        util.log('Request for /deploy received');
 
-                    const html = confirmationHtml.replace('{0}', sapConfig.bspDeployTarget);
-                    return res.end(html);
-                },
-            };
-            // called when the dev clicks the confirmation link
-            // displays an info window for the deployment process
-            const deploymentConfirmed = {
-                route: '/deploy/yes',
-                handle: (req, res) => {
-                    // re-read the config so it can be changed without restarting gulp
-                    readConfig();
+                        const html = confirmationHtml.replace('{0}', sapConfig.bspDeployTarget);
+                        return res.end(html);
+                    },
+                };
+                // called when the dev clicks the confirmation link
+                // displays an info window for the deployment process
+                const deploymentConfirmed = {
+                    route: '/deploy/yes',
+                    handle: (req, res) => {
+                        // re-read the config so it can be changed without restarting gulp
+                        readConfig();
 
-                    util.log('Request for /deploy/yes received');
+                        util.log('Request for /deploy/yes received');
 
-                    const zipPath = `./${PATHS.zip}`;
-                    util.log(`Making directory "${zipPath}"...`);
+                        const zipPath = `./${PATHS.zip}`;
+                        util.log(`Making directory "${zipPath}"...`);
 
-                    // create directory
-                    return mkdirp(zipPath)
-                        .then(() => {
-                            util.log('Successful.');
+                        // create directory
+                        return mkdirp(zipPath)
+                            .then(() => {
+                                util.log('Successful.');
 
-                            // zip the build folder
-                            const zipFileName = `${zipPath}/div.zip`;
-                            util.log(`Zipping build directory to "${zipFileName}"...`);
-                            return zipFolder(PATHS.build.root, zipFileName)
-                                .then((err) => {
-                                    let html;
+                                // zip the build folder
+                                const zipFileName = `${zipPath}/div.zip`;
+                                util.log(`Zipping build directory to "${zipFileName}"...`);
+                                return zipFolder(PATHS.build.root, zipFileName)
+                                    .then((err) => {
+                                        let html;
 
-                                    if (err) {
+                                        if (err) {
+                                            const errStr = JSON.stringify(err, null, 4);
+                                            util.log(`Error occurred: ${errStr}"`);
+                                            // somethign went wrong with zip process
+                                            html = errorHtml.replace('{0}', errStr);
+                                            res.end(html);
+                                        }
+                                        util.log('Successful.');
+
+                                        // read the zip file that was just created
+                                        util.log('Reading zip file...');
+                                        return readFile(zipFileName).then((zipRaw) => {
+                                            util.log('Successful.');
+                                            // convert from raw bytes to base64
+                                            util.log('Converting to base64 string...');
+                                            const zipBase64 = arrayBufferToBase64(zipRaw);
+                                            util.log('Successful.');
+                                            util.log('Returning HTML for processing.');
+                                            const data = JSON.stringify({
+                                                appName: sapConfig.bspDeployTarget,
+                                                zipFile: zipBase64,
+                                            });
+
+                                            // the client will do the sending of the requests
+                                            html = processingHtml.replace('{0}', JSON.stringify(sapConfig))
+                                                .replace('{1}', cookieHeader)
+                                                .replace('{2}', data);
+                                            res.end(html);
+                                        });
+                                    })
+                                    .catch((err) => {
                                         const errStr = JSON.stringify(err, null, 4);
                                         util.log(`Error occurred: ${errStr}"`);
-                                        // somethign went wrong with zip process
-                                        html = errorHtml.replace('{0}', errStr);
-                                        res.end(html);
-                                    }
-                                    util.log('Successful.');
-
-                                    // read the zip file that was just created
-                                    util.log('Reading zip file...');
-                                    return readFile(zipFileName).then((zipRaw) => {
-                                        util.log('Successful.');
-                                        // convert from raw bytes to base64
-                                        util.log('Converting to base64 string...');
-                                        const zipBase64 = arrayBufferToBase64(zipRaw);
-                                        util.log('Successful.');
-                                        util.log('Returning HTML for processing.');
-                                        const data = JSON.stringify({
-                                            appName: sapConfig.bspDeployTarget,
-                                            zipFile: zipBase64,
-                                        });
-
-                                        // the client will do the sending of the requests
-                                        html = processingHtml.replace('{0}', JSON.stringify(sapConfig))
-                                            .replace('{1}', cookieHeader)
-                                            .replace('{2}', data);
-                                        res.end(html);
+                                        res.end(errorHtml.replace('{0}', errStr));
                                     });
-                                })
-                                .catch((err) => {
-                                    const errStr = JSON.stringify(err, null, 4);
-                                    util.log(`Error occurred: ${errStr}"`);
-                                    res.end(errorHtml.replace('{0}', errStr));
-                                });
-                        });
-                },
-            };
+                            });
+                    },
+                };
 
-            // ordering of middleware matters here as routes are matched in that order
-            let middleware = [deploymentConfirmed, deploymentConfirmation];
-            if (useProxy) {
                 // disable security rejections
                 // this is easier than trying to make nodejs accept the ca
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -193,12 +197,13 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
 
                 middleware = [
                     sapProxy, libProxy,
+                    // ordering of middleware matters here as routes are matched in that order
                     deploymentConfirmed, deploymentConfirmation,
                 ];
             }
 
             // config and start browsersync
-            const opts = extend(browserSyncOptions, {
+            const opts = extend({}, browserSyncOptions, {
                 server: {
                     baseDir: `./${PATHS.build.root}`,
                     index: 'index.html',
