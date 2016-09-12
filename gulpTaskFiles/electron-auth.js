@@ -81,7 +81,7 @@ function createWindow() {
         win = null;
     });
 
-    client = electronConnect.create(win);
+    client = electronConnect.create(win, { port: 30080 });
 }
 
 // This method will be called when Electron has finished

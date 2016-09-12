@@ -2,7 +2,7 @@
 
 const browserSync = require('browser-sync').create('UI5-Server');
 const btoa        = require('btoa');
-const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js' });
+const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js', port: 30080 });
 const extend      = require('extend');
 const fs          = require('fs');
 const proxy       = require('http-proxy-middleware');
@@ -64,6 +64,9 @@ function electronAuth(resolveAuth, rejectAuth) {
  * Fetches the auth tokens, and starts the browsersync server
  */
 function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
+    util.log(`Server will ${useAuth  ? '' : 'not '}authenticate with server.`);
+    util.log(`Server will ${useProxy ? '' : 'not '}setup a proxy to server.`);
+
     if (!useProxy) {
         // no point using auth if we don't have the proxy!
         useAuth = false;
