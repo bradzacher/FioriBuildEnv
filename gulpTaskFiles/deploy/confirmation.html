@@ -2,17 +2,40 @@
     <head>
         <title>Confirm Deployment</title>
         <style>
-            * {
-                font-size: 2rem;
+            html, body {
+                margin: 0;
+                padding: 0;
+
+                font-size: 57px;
                 font-family: sans-serif;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #container, #container * {
+                text-align: center;
+                margin-bottom: 1em;
+            }
+            a {
+                background-color: orange;
+                color: black;
+                text-decoration: none;
+                padding: 0.25em;
             }
         </style>
     </head>
     <body>
-        <p>
-            DEPLOYMENT TO BSP APPLICATION<br />
-            <b><u>{0}</u></b>
-        </p>
-        <p><a href="/deploy/yes">CLICK HERE TO CONFIRM</a></p>
+        <div id="container">
+            <div class="msg">
+                DEPLOYMENT TO BSP APPLICATION<br />
+                <b><u>{0}</u></b>
+            </div>
+            <a href="/deploy/yes">CLICK HERE TO CONFIRM</a>
+        </div>
     </body>
 </html>
