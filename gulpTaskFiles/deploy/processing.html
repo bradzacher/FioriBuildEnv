@@ -47,7 +47,8 @@
             (function getCsrfAndDeploy() {
                 statusSpan.innerHTML = 'Getting CSRF';
                 var csrfRequest = new XMLHttpRequest();
-                csrfRequest.open('GET', '/sap/opu/odata/' + sapConfig.deploymentService + '/$metadata', true);
+                // make sure that we don't cache the result....
+                csrfRequest.open('GET', '/sap/opu/odata/' + sapConfig.deploymentService + '/$metadata?_=' + new Date().getTime(), true);
                 csrfRequest.setRequestHeader('X-CSRF-Token', 'Fetch');
                 csrfRequest.onreadystatechange = function() {
                     if (csrfRequest.readyState === XMLHttpRequest.DONE) {
