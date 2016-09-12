@@ -28,13 +28,11 @@ function watch() {
 
     // start the server if requested
     if (util.env.server !== false) {
-        const serverOptions = {
+        // eslint-disable-next-line global-require
+        const serverStartedPromise = require('./gulpTaskFiles/server.js')({
             useAuth: util.env.auth,
             useProxy: util.env.proxy,
-        };
-
-        // eslint-disable-next-line global-require
-        const serverStartedPromise = require('./gulpTaskFiles/server.js')(serverOptions);
+        });
         serverStartedPromise.then(() => {
             // fetch the server instance
             server = browserSync.get('UI5-Server');
