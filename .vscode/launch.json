@@ -24,13 +24,35 @@
             "outDir": null
         },
         {
-            "name": "Launch gulp build-dev in debug",
+            "name": "Launch gulp deploy in debug",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
             "stopOnEntry": false,
             "args": [
-                "build-dev"
+                "deploy"
+            ],
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": null,
+            "preLaunchTask": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": false,
+            "outDir": null
+        },
+        {
+            "name": "Launch gulp build in debug",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
+            "stopOnEntry": false,
+            "args": [
+                "build"
             ],
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": null,

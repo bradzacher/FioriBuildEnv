@@ -30,8 +30,8 @@ function watch() {
     if (util.env.server !== false) {
         // eslint-disable-next-line global-require
         const serverStartedPromise = require('./gulpTaskFiles/server.js')({
-            useAuth: util.env.auth,
-            useProxy: util.env.proxy,
+            useAuth: util.env.auth !== false,
+            useProxy: util.env.proxy !== false,
         });
         serverStartedPromise.then(() => {
             // fetch the server instance

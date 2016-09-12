@@ -47,17 +47,9 @@ A gulp-based build environment for Fiori development, including deployment to an
 └── /zip/                       # deployment zips
 ```
 
-# Gulp Tasks
+# Configuration
 
-### glup watch
-
-- Fetches login cookies from the SAP server,
-- Starts the local development server with proxies,
-- Watches for changes to all buildable files, and
-- Rebuilds files on change.
-
-The development server will automatically proxy all OData service requests to your desired endpoint.
-This task will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
+This gulp tasks will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
 
 ```JavaScript
 {
@@ -68,6 +60,17 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
 }
 ```
 
+# Gulp Tasks
+
+### glup watch<a name="gulp-watch'></a>
+
+- Fetches login cookies from the SAP server,
+- Starts the local development server with proxies,
+- Watches for changes to all buildable files, and
+- Rebuilds files on change.
+
+The development server will automatically proxy all OData service requests to your desired endpoint.
+
 #### flags
 
 - ```--no-server```
@@ -77,12 +80,25 @@ This task will read config from the `/gulpTaskFiles/sap-config.json` file, which
 - ```--no-proxy```
     - Disables the proxy to the SAP server, and the authentication
 
+
 ### gulp build
 
-Builds the source code into the build release version of the code,
+Builds the source code into the build folder.
 
 
-# Deployment
+### gulp deploy
+
+Builds the source code, then opens a window to manage the deployment (see [Deployment](#deployment)).
+
+#### flags
+
+- ```--no-rebuild```
+    - Don't rebuild before opening the confirmation page
+- ```--no-auth```
+    - Skips fetching an auth token from the SAP.
+
+
+# Deployment<a name="deployment></a>
 
 1. Obtain a lock on the BSP application.
 1. Run ``gulp deploy``.
