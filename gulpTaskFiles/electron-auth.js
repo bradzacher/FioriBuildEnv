@@ -2,7 +2,8 @@
 const electron = require('electron');
 const electronConnect = require('electron-connect').client;
 
-const sapConfig = require('./sap-config.json');
+const { readConfig } = require('./CONSTANTS.js');
+const sapConfig = readConfig();
 
 // Module to control application life.
 const { app } = electron;
