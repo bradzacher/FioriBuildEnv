@@ -85,14 +85,32 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                 let confirmationHtml;
                 let processingHtml;
                 let errorHtml;
-                readFile('./deploy/confirmation.html', 'utf8').then((text) => {
+                readFile('./gulpTaskFiles/deploy/confirmation.html', 'utf8').then((text) => {
+                    if (!text) {
+                        throw new Error('file was empty');
+                    }
                     confirmationHtml = text;
+                })
+                .catch((err) => {
+                    util.log(`Error loding confirmation.html: ${err}`);
                 });
-                readFile('./deploy/processing.html', 'utf8').then((text) => {
+                readFile('./gulpTaskFiles/deploy/processing.html', 'utf8').then((text) => {
+                    if (!text) {
+                        throw new Error('file was empty');
+                    }
                     processingHtml = text;
+                })
+                .catch((err) => {
+                    util.log(`Error loding processing.html: ${err}`);
                 });
-                readFile('./deploy/error.html', 'utf8').then((text) => {
+                readFile('./gulpTaskFiles/deploy/error.html', 'utf8').then((text) => {
+                    if (!text) {
+                        throw new Error('file was empty');
+                    }
                     errorHtml = text;
+                })
+                .catch((err) => {
+                    util.log(`Error loding error.html: ${err}`);
                 });
 
                 // called when the dev goes to http://localhost:<port>/deploy
@@ -128,7 +146,7 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                                 util.log('Successful.');
 
                                 // zip the build folder
-                                const zipFileName = `${zipPath}/div.zip`;
+                                const zipFileName = `${zipPath}/deploy.zip`;
                                 util.log(`Zipping build directory to "${zipFileName}"...`);
                                 return zipFolder(PATHS.build.root, zipFileName)
                                     .then((err) => {
