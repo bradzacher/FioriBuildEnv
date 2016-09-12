@@ -62,7 +62,7 @@ This gulp tasks will read config from the `/gulpTaskFiles/sap-config.json` file,
 
 # Gulp Tasks
 
-### glup watch<a name="gulp-watch'></a>
+### glup watch
 
 - Fetches login cookies from the SAP server,
 - Starts the local development server with proxies,
@@ -98,7 +98,7 @@ Builds the source code, then opens a window to manage the deployment (see [Deplo
     - Skips fetching an auth token from the SAP.
 
 
-# Deployment<a name="deployment></a>
+# Deployment
 
 1. Obtain a lock on the BSP application.
 1. Run ``gulp deploy``.
