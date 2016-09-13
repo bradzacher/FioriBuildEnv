@@ -69,8 +69,8 @@ function watch() {
 
     // setup all the watches
     watchFiles('html', buildHtml);
-    watchFiles('viewXml', e => buildXml(e, 'view'));
-    watchFiles('fragmentXml', e => buildXml(e, 'fragment'));
+    watchFiles('viewXml', () => buildXml('view'));
+    watchFiles('fragmentXml', () => buildXml('fragment'));
     watchFiles('json', buildJson);
     watchFiles('i18n', buildI18n);
     watchFiles('fonts', buildFont);
