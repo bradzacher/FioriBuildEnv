@@ -50,10 +50,10 @@ function buildCss() {
         .pipe(concat(PATHS.build.css))
         // minify it as well
         .pipe(cssmin())
-        // write the sourcemaps
-        .pipe(sourcemaps.write('.'))
         // rename to show minification
         .pipe(rename({ extname: '.min.css' }))
+        // write the sourcemaps
+        .pipe(sourcemaps.write('.'))
         // write the result
         .pipe(gulp.dest(`${PATHS.build.root}/css`));
 }
