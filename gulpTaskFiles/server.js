@@ -234,6 +234,12 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                 snippetOptions: {
                     blacklist: ['/deploy', '/deploy/yes'],
                 },
+                // disable input syncing
+                ghostMode: {
+                    clicks: false,
+                    forms: false,
+                    scroll: false,
+                },
             });
             browserSync.init(opts);
 
