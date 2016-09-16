@@ -50,13 +50,20 @@ function watch() {
         gulp.watch(PATHS.src[key], () => {
             // rebuild
             notify(`Recompiling ${key}`);
-            func().on('end', () => {
+            function onEnd() {
                 // rebuild component-preload.js
                 notify('Rebuilding Component-preload.js');
                 const res = buildUi5Component();
                 // reload the browser
                 server && res.on('end', server.reload);
-            });
+            }
+
+            const res = func();
+            if (res.on) {
+                res.on('end', onEnd);
+            } else {
+                res.then(onEnd);
+            }
         });
     }
 
