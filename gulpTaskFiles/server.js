@@ -2,7 +2,7 @@
 
 const browserSync = require('browser-sync').create('UI5-Server');
 const btoa        = require('btoa');
-const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js', port: 30080 });
+const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-auth.js', port: 30080, logLevel: 0 });
 const extend      = require('extend');
 const fs          = require('fs');
 const proxy       = require('http-proxy-middleware');
