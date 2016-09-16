@@ -11,12 +11,14 @@ const { PATHS } = require('../CONSTANTS.js');
 function buildUi5Component() {
     const root = PATHS.build.root;
     return gulp.src([
+        `!${root}/**/*-dbg.js`,
         `${root}/**/*.js`,
         `${root}/**/*.xml`,
         `!${root}/**/Component-preload.js`,
     ])
     .pipe(ui5preload({
         base: root,
+        namespace: '',
     }))
     .pipe(gulp.dest(root));
 }
