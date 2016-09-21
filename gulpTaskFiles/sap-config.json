@@ -1,5 +1,6 @@
 {
     "gateway": "https://sapgwdev001.etsa.com.au:2080",
+    "cookieName": "SAP_SESSIONID_GWD_100",
     "bspDeployTarget": "zbrad1",
     "deploymentService": "etsa/sapui5_deploy_srv"
 }

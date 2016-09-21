@@ -54,6 +54,7 @@ This gulp tasks will read config from the `/gulpTaskFiles/sap-config.json` file,
 ```JavaScript
 {
     gateway: '<url>',            // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
+    cookieName: '<name>',        // the name of the cookie that will be fetched during the auth process
     localDevPort: '<port>',      // the port that browsersync will run off (defaults to 3000)
     bspDeployTarget: '<name>',   // the name of the BSP application to which the auto deployment script will deploy to
     deploymentService: '<name>', // the name of the OData service which you setup (as per the deployment section below)

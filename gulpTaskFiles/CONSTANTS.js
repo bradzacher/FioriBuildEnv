@@ -67,6 +67,7 @@ const readConfig = () => {
     const sapConfig = require(configFile);
     return extend({
         gateway: null, // the url of the gateway server
+        cookieName: 'SAP_SESSIONID_GWD_100', // the auth cookie electron will fetch
         localDevPort: '3000', // the port which the local server will run from
         bspDeployTarget: null, // the name of the bsp application
     }, sapConfig);

@@ -38,7 +38,7 @@ function createWindow() {
             win.webContents.on('did-get-response-details', () => {
                 win.webContents.session.cookies.get({}, (error, cookies) => {
                     // forward the cookie onto the gulp script
-                    const cookie = cookies.filter((c) => c.name === 'SAP_SESSIONID_GWD_100')[0];
+                    const cookie = cookies.filter((c) => c.name === sapConfig.cookieName)[0];
                     client.sendMessage('auth-success', {
                         name: cookie.name,
                         value: cookie.value,
