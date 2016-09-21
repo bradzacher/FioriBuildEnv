@@ -39,6 +39,11 @@ function createWindow() {
                 win.webContents.session.cookies.get({}, (error, cookies) => {
                     // forward the cookie onto the gulp script
                     const cookie = cookies.filter((c) => c.name === sapConfig.cookieName)[0];
+                    if (!cookie) {
+                        // send the failure message
+                        client.sendMessage('auth-failure', 'Auth cookie was not found.');
+                        return;
+                    }
                     client.sendMessage('auth-success', {
                         name: cookie.name,
                         value: cookie.value,
