@@ -7,8 +7,8 @@ const util = require('gulp-util');
 const SRC = 'src';
 const PATHS = {
     src: {
-        js: [`!${SRC}/js/lib/**/*.js`, `${SRC}/js/**/*.js`],
-        jsLib: [`${SRC}/js/lib/**/*.js`],
+        js: [`${SRC}/js/**/*.js`],
+        jsLib: [`${SRC}/lib/**/*.js`],
         css: [`${SRC}/css/**/*.scss`],
         fonts: [`${SRC}/fonts/*`],
         html: [`${SRC}/*.html`],
