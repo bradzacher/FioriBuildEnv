@@ -7,7 +7,8 @@ const util = require('gulp-util');
 const SRC = 'src';
 const PATHS = {
     src: {
-        js: [`${SRC}/js/**/*.js`],
+        js: [`!${SRC}/js/lib/**/*.js`, `${SRC}/js/**/*.js`],
+        jsLib: [`${SRC}/js/lib/**/*.js`],
         css: [`${SRC}/css/**/*.scss`],
         fonts: [`${SRC}/fonts/*`],
         html: [`${SRC}/*.html`],
@@ -18,7 +19,7 @@ const PATHS = {
     },
     build: {
         root: 'build',
-        js: 'app.js',
+        jsLib: 'lib.js',
         css: 'styles.css',
     },
     zip: 'zip',
@@ -67,7 +68,6 @@ const readConfig = () => {
     const sapConfig = require(configFile);
     return extend({
         gateway: null, // the url of the gateway server
-        cookieName: 'SAP_SESSIONID_GWD_100', // the auth cookie electron will fetch
         localDevPort: '3000', // the port which the local server will run from
         bspDeployTarget: null, // the name of the bsp application
     }, sapConfig);

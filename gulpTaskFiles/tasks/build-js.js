@@ -15,7 +15,7 @@ const { PATHS, SIZE_OPTS, beep } = require('../CONSTANTS.js');
  */
 function buildJs() {
     const promise = new Promise((resolve, reject) => {
-        const res = gulp.src(PATHS.src.js[0])
+        const res = gulp.src(PATHS.src.js)
                     // print the files
                     .pipe(size(SIZE_OPTS))
                     // lint the js

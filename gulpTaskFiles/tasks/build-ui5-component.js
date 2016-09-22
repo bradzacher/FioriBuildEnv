@@ -23,7 +23,7 @@ function buildUi5Component() {
     .pipe(gulp.dest(root));
 }
 gulp.task('build-ui5-component',
-    ['build-js', 'build-html', 'build-css', 'build-font', 'build-i18n', 'build-json', 'build-xml'],
+    ['build-js', 'build-html', 'build-css', 'build-font', 'build-i18n', 'build-json', 'build-xml', 'build-js-lib'],
     buildUi5Component);
 
 module.exports = buildUi5Component;

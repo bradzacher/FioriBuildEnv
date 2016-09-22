@@ -1,7 +1,7 @@
 'use strict';
 
 const gulp        = require('gulp');
-const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-deploy.js', port: 30081 });
+const electron    = require('electron-connect').server.create({ path: 'gulpTaskFiles/electron-deploy.js', port: 30081, logLevel: 0 });
 const runSequence = require('run-sequence');
 const util        = require('gulp-util');
 

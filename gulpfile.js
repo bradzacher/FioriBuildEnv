@@ -14,6 +14,7 @@ const buildFont         = require(`${tasksDir}/build-font.js`);
 const buildHtml         = require(`${tasksDir}/build-html.js`);
 const buildI18n         = require(`${tasksDir}/build-i18n.js`);
 const buildJs           = require(`${tasksDir}/build-js.js`);
+const buildJsLib        = require(`${tasksDir}/build-js-lib.js`);
 const buildJson         = require(`${tasksDir}/build-json.js`);
 const buildUi5Component = require(`${tasksDir}/build-ui5-component.js`);
 const buildXml          = require(`${tasksDir}/build-xml.js`);
@@ -82,6 +83,7 @@ function watch() {
     watchFiles('i18n', buildI18n);
     watchFiles('fonts', buildFont);
     watchFiles('js', buildJs);
+    watchFiles('jsLib', buildJsLib);
 }
 gulp.task('watch', watch);
 
