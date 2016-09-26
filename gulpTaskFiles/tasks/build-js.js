@@ -26,7 +26,14 @@ function buildJs() {
                     .on('error', beep)
                     .on('error', () => reject())
                     // ui5 wants this suffix on non-minified files
-                    .pipe(rename({ suffix: '-dbg' }))
+                    .pipe(rename((p) => {
+                        const dotIndex = p.basename.indexOf('.');
+                        if (dotIndex === -1) {
+                            p.basename = `${p.basename}-dbg`;
+                        } else {
+                            p.basename = `${p.basename.substring(0, dotIndex)}-dbg${p.basename.substring(dotIndex)}`;
+                        }
+                    }))
                     // prepare the source map
                     .pipe(sourcemaps.init())
                     // transpile to old JS
@@ -37,7 +44,7 @@ function buildJs() {
                     .pipe(gulp.dest(`${PATHS.build.root}`));
         res.on('end', () => {
             // minify
-            gulp.src(`${PATHS.build.root}/**/*-dbg.js`)
+            gulp.src(`${PATHS.build.root}/**/*-dbg*.js`)
                 // remove the -dbg from the name
                 .pipe(rename((p) => {
                     p.basename = p.basename.replace('-dbg', '');
