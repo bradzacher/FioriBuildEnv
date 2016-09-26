@@ -41,7 +41,8 @@ function buildJs() {
                     // write the sourcemap
                     .pipe(sourcemaps.write('.'))
                     // write the js file
-                    .pipe(gulp.dest(`${PATHS.build.root}`));
+                    .pipe(gulp.dest(`${PATHS.build.root}`))
+                    .on('error', () => reject());
         res.on('end', () => {
             // minify
             gulp.src(`${PATHS.build.root}/**/*-dbg*.js`)
