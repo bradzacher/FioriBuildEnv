@@ -19,7 +19,7 @@ function buildJsLib() {
                 .pipe(rename({
                     suffix: '-dbg',
                 }))
-                .pipe(sourcemaps.write())
+                .pipe(sourcemaps.write('.'))
                 .pipe(gulp.dest(PATHS.build.root))
                 .on('error', () => reject());
         res.on('end', () => {
@@ -30,7 +30,7 @@ function buildJsLib() {
                 }))
                 .pipe(sourcemaps.init())
                 .pipe(uglify())
-                .pipe(sourcemaps.write())
+                .pipe(sourcemaps.write('.'))
                 .pipe(gulp.dest(PATHS.build.root))
                 .on('error', () => reject())
                 .on('end', () => resolve());
