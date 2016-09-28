@@ -20,7 +20,7 @@ const readFile    = Promise.denodeify(fs.readFile);
 const { PATHS, readConfig } = require('./CONSTANTS.js');
 
 // sap config
-const sapConfig = readConfig();
+let sapConfig = readConfig();
 
 // unfortunately it is easy to cause a stackoverflow when using String.fromCharCode with a large enough array.
 // this function is a workaround for that issue.
@@ -122,7 +122,7 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                     route: '/deploy',
                     handle: (req, res) => {
                         // re-read the config so it can be changed without restarting gulp
-                        readConfig();
+                        sapConfig = readConfig();
 
                         util.log('Request for /deploy received');
 
@@ -136,7 +136,7 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                     route: '/deploy/yes',
                     handle: (req, res) => {
                         // re-read the config so it can be changed without restarting gulp
-                        readConfig();
+                        sapConfig = readConfig();
 
                         util.log('Request for /deploy/yes received');
 
