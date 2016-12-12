@@ -3,13 +3,14 @@ const electron = require('electron');
 const electronConnect = require('electron-connect').client;
 
 const { readConfig } = require('./CONSTANTS.js');
+
 const sapConfig = readConfig();
 
 // Module to control application life.
 const { app } = electron;
 // Module to create native browser window.
 const { BrowserWindow } = electron;
-
+const { session } = electron;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -20,6 +21,9 @@ let hasAuthed = false;
 let client = null;
 
 function createWindow() {
+    // allow ntlm auth
+    session.defaultSession.allowNTLMCredentialsForDomains('*');
+
     // Create the browser window.
     win = new BrowserWindow({
         width: 400,
@@ -33,12 +37,12 @@ function createWindow() {
     win.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {
         // this redirect in particular means SAP has received the SAML token and created the cookies
         if (oldUrl.indexOf(`${sapConfig.gateway}/sap/saml2/sp/acs/100`) !== -1 &&
-            newUrl.indexOf(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`) !== -1) {
+            newUrl.indexOf(`${sapConfig.gateway}/${sapConfig.launchpadUrl}`) !== -1) {
             // listen for the next response so we can grab our session id
             win.webContents.on('did-get-response-details', () => {
                 win.webContents.session.cookies.get({}, (error, cookies) => {
                     // forward the cookie onto the gulp script
-                    const cookie = cookies.filter((c) => c.name === sapConfig.cookieName)[0];
+                    const cookie = cookies.filter(c => c.name === sapConfig.cookieName)[0];
                     if (!cookie) {
                         // send the failure message
                         client.sendMessage('auth-failure', 'Auth cookie was not found.');
@@ -62,7 +66,7 @@ function createWindow() {
     });
 
     // and gwd to get an auth cookie.
-    win.loadURL(`${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html`, {
+    win.loadURL(`${sapConfig.gateway}/${sapConfig.launchpadUrl}`, {
         // spoof UA to look like IE11 so that we can work around the missing whitelist chrome UA
         userAgent: 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
     });

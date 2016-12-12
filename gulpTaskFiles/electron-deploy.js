@@ -3,6 +3,7 @@ const electron = require('electron');
 const electronConnect = require('electron-connect').client;
 
 const { readConfig } = require('./CONSTANTS.js');
+
 const sapConfig = readConfig();
 
 // Module to control application life.

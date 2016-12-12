@@ -23,8 +23,25 @@ A gulp-based build environment for Fiori development, including deployment to an
     - Automatic reloads on source code changes.
 - One click deployment to an ERP/Gateway server.
 
+# Configuration
+
+This gulp tasks will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
+
+```JavaScript
+{
+    gateway: '<url>',            // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
+    launchpadUrl: '<dir>',       // url for the launchpad (defaults to 'sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html')
+    cookieName: '<name>',        // the name of the cookie that will be fetched during the auth process
+    localDevPort: '<port>',      // the port that browsersync will run off (defaults to 3000)
+    bspDeployTarget: '<name>',   // the name of the BSP application to which the auto deployment script will deploy to
+    deploymentService: '<name>', // the name of the OData service which you setup (as per the deployment section below)
+}
+```
+
 # File Structure
 
+## Single App File Structure
+This is the general use case; use this structure if you are building a single app to be served from a single BSP application.
 ```
 |
 ├── /.vscode/                   # visual studio code config files
@@ -41,24 +58,44 @@ A gulp-based build environment for Fiori development, including deployment to an
 │   │   ├── /fragment/          # Fragment XML files
 │   │   ├── /Component.js       # Component definition file
 │   │   └── /manifest.json      # Component manifest file
-|   └── /css/                   # StyleSheet files (scss)
+│   └── /css/                   # StyleSheet files (scss)
 ├── /build/                     # build directory
 └── /zip/                       # deployment zips
 ```
 
-# Configuration
-
-This gulp tasks will read config from the `/gulpTaskFiles/sap-config.json` file, which has the following options:
-
-```JavaScript
-{
-    gateway: '<url>',            // url for the service endpoint and deployment server : '<scheme>://<host>:<port>'
-    cookieName: '<name>',        // the name of the cookie that will be fetched during the auth process
-    localDevPort: '<port>',      // the port that browsersync will run off (defaults to 3000)
-    bspDeployTarget: '<name>',   // the name of the BSP application to which the auto deployment script will deploy to
-    deploymentService: '<name>', // the name of the OData service which you setup (as per the deployment section below)
-}
+## Multi-App Source File Structure
+A slightly more advanced use case; use this structure you are building multiple apps to be served from a single BSP application.
+This is useful if you've got a few closely related apps that you want logically separated, but don't want to manage separate BSP applications.
+All apps will be built into separate Component-preload.js files.
 ```
+├── /src/
+│   ├── /app_ONE                    # app_ONE source code
+│   │   ├── /index.html             # Base HTML page
+│   │   ├── /js/                    # javascript/code related source files
+│   │   │   ├── /controller/        # Controller JavaScript files
+│   │   │   ├── /i18n/              # Internationalisation *.properties files
+│   │   │   ├── /view/              # View XML files
+│   │   │   ├── /fragment/          # Fragment XML files
+│   │   │   ├── /Component.js       # Component definition file
+│   │   │   └── /manifest.json      # Component manifest file
+|   │   └── /css/                   # StyleSheet files (scss)
+│   ├── /app_TWO                    # app_TWO source code
+│   │   └── ...                     # repeat the structure...
+│   ├── /library_ONE                # library_ONE source code
+│   │   ├── /is.library             # Library indicator file
+│   │   ├── /js/                    # javascript/code related source files
+│   │   │   ├── /controller/        # Controller JavaScript files
+│   │   │   ├── /i18n/              # Internationalisation *.properties files
+│   │   │   ├── /view/              # View XML files
+│   │   │   ├── /fragment/          # Fragment XML files
+│   │   │   ├── /Component.js       # Component definition file
+│   │   │   └── /manifest.json      # Component manifest file
+|   │   └── /css/                   # StyleSheet files (scss)
+│   └── ...                         # repeat...
+```
+
+Note that for the library above, an empty file is added to the tree name `is.library`.
+This file tells the library that the package is intended to be built into a `library-preload.json` instead of a `Component-preload.js`.
 
 # Gulp Tasks
 

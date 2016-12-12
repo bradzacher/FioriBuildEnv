@@ -11,6 +11,7 @@ const util        = require('gulp-util');
 const Promise     = require('promise');
 const zipFolder   = Promise.denodeify(require('zip-folder'));
 const mkdirp      = Promise.denodeify(require('mkdirp'));
+
 const readFile    = Promise.denodeify(fs.readFile);
 
 /*************************

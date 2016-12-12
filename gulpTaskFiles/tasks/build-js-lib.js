@@ -7,11 +7,13 @@ const size        = require('gulp-size');
 const sourcemaps  = require('gulp-sourcemaps');
 const uglify      = require('gulp-uglify');
 
+const packageList = require('../packageList');
+
 const { PATHS, SIZE_OPTS } = require('../CONSTANTS.js');
 
 function buildJsLib() {
-    const promise = new Promise((resolve, reject) => {
-        const res = gulp.src(PATHS.src.jsLib)
+    const promises = packageList.get().map(pckg => new Promise((resolve, reject) => {
+        const res = gulp.src(`${pckg.src}/${PATHS.src.jsLib}`)
                 .pipe(size(SIZE_OPTS))
                 // write the non-minified file + map
                 .pipe(sourcemaps.init())
@@ -20,23 +22,23 @@ function buildJsLib() {
                     suffix: '-dbg',
                 }))
                 .pipe(sourcemaps.write('.'))
-                .pipe(gulp.dest(PATHS.build.root))
-                .on('error', () => reject());
+                .pipe(gulp.dest(pckg.dest))
+                .on('error', reject);
         res.on('end', () => {
-            // write the minfiied file + map
-            gulp.src(`${PATHS.build.root}/lib-dbg.js`)
+            // write the minified file + map
+            gulp.src(`${pckg.dest}/lib-dbg.js`)
                 .pipe(rename((p) => {
                     p.basename = p.basename.replace('-dbg', '');
                 }))
                 .pipe(sourcemaps.init())
                 .pipe(uglify())
                 .pipe(sourcemaps.write('.'))
-                .pipe(gulp.dest(PATHS.build.root))
-                .on('error', () => reject())
-                .on('end', () => resolve());
+                .pipe(gulp.dest(pckg.dest))
+                .on('error', reject)
+                .on('end', resolve);
         });
-    });
-    return promise;
+    }));
+    return Promise.all(promises);
 }
 gulp.task('build-js-lib', buildJsLib);
 

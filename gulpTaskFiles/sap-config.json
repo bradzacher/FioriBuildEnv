@@ -1,5 +1,6 @@
 {
     "gateway": "https://lbvs-sapfiori-dev.sapowernetworks.com.au",
+    "launchpadUrl": "fiori",
     "cookieName": "SAP_SESSIONID_GWD_100",
     "bspDeployTarget": "zbrad1",
     "deploymentService": "etsa/sapui5_deploy_srv"

@@ -7,15 +7,16 @@ const util = require('gulp-util');
 const SRC = 'src';
 const PATHS = {
     src: {
-        js: [`${SRC}/js/**/*.js`],
-        jsLib: [`${SRC}/lib/**/*.js`],
-        css: [`${SRC}/css/**/*.scss`],
-        fonts: [`${SRC}/fonts/*`],
-        html: [`${SRC}/*.html`],
-        viewXml: [`${SRC}/js/view/**/*.xml`],
-        fragmentXml: [`${SRC}/js/fragment/**/*.xml`],
-        i18n: [`${SRC}/js/i18n/**/*.properties`],
-        json: [`${SRC}/js/**/*.json`],
+        root: SRC,
+        js: ['js/**/*.js'],
+        jsLib: ['lib/**/*.js'],
+        css: ['css/**/*.scss'],
+        fonts: ['fonts/*'],
+        html: ['*.html'],
+        viewXml: ['js/view/**/*.xml'],
+        fragmentXml: ['js/fragment/**/*.xml'],
+        i18n: ['js/i18n/**/*.properties'],
+        json: ['js/**/*.json'],
     },
     build: {
         root: 'build',
@@ -64,10 +65,11 @@ const readConfig = () => {
         }(mod));
     }
 
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line global-require, import/no-dynamic-require
     const sapConfig = require(configFile);
     return extend({
         gateway: null, // the url of the gateway server
+        launchpadUrl: 'sap/bc/ui5_ui5/ui2/ushell/shells/abap/FioriLaunchpad.html', // the relative dir of the launchpad
         localDevPort: '3000', // the port which the local server will run from
         bspDeployTarget: null, // the name of the bsp application
     }, sapConfig);

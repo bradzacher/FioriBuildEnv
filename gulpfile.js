@@ -1,11 +1,16 @@
 /* globals process */
+
 'use strict';
 
 const browserSync = require('browser-sync');
 const gulp        = require('gulp');
 const util        = require('gulp-util');
 
+const packageList = require('./gulpTaskFiles/packageList');
+
 const { PATHS } = require('./gulpTaskFiles/CONSTANTS.js');
+
+/* eslint-disable import/no-dynamic-require */
 
 // require the tasks from their files
 const tasksDir = './gulpTaskFiles/tasks/';
@@ -20,6 +25,8 @@ const buildUi5Component = require(`${tasksDir}/build-ui5-component.js`);
 const buildXml          = require(`${tasksDir}/build-xml.js`);
 require(`${tasksDir}/clean.js`);
 require(`${tasksDir}/deploy.js`);
+
+/* eslint-enable import/no-dynamic-require */
 
 /**
  * Watches for changes
@@ -40,6 +47,26 @@ function watch() {
         });
     }
 
+    // rebuilds everything if required
+    function rebuild() {
+        if (packageList.refresh()) {
+            // new packages, so rebuild everything
+            return Promise.all([
+                buildCss(),
+                buildFont(),
+                buildHtml(),
+                buildI18n(),
+                buildJs(),
+                buildJsLib(),
+                buildJson(),
+                buildXml(),
+            // build everything first...
+            // then build the component preload
+            ]).then(() => buildUi5Component());
+        }
+        return false;
+    }
+
     // logs to the console and notifies the browserSync client (if started)
     function notify(msg) {
         server && server.notify(msg);
@@ -47,30 +74,35 @@ function watch() {
     }
     // sets a watch on a set of files
     function watchFiles(key, func) {
+        util.log(`Watching for changes to "${key}" files`);
+
         // watch for changes
-        gulp.watch(PATHS.src[key], () => {
-            // rebuild
+        gulp.watch(`${PATHS.src.root}/**/${PATHS.src[key]}`, () => {
+            // do a full rebuild maybe?
+            const fullRebuild = rebuild();
+            if (fullRebuild) {
+                notify('Packages Changed, Doing Full Rebuild');
+                fullRebuild.then(() => server && server.reload());
+                return;
+            }
+
+            // rebuild just the required files
             notify(`Recompiling ${key}`);
-            function onEnd() {
+            func().then(() => {
                 // rebuild component-preload.js
                 notify('Rebuilding Component-preload.js');
                 const res = buildUi5Component();
                 // reload the browser
-                server && res.on('end', server.reload);
-            }
-
-            const res = func();
-            if (res.on) {
-                res.on('end', onEnd);
-            } else {
-                res.then(onEnd);
-            }
+                res.then(() => server && server.reload());
+            });
         });
     }
 
     // watch css and pipe into browser-sync when done
-    gulp.watch(PATHS.src.css, () => {
+    util.log('Watching for changes to "css" files');
+    gulp.watch(`${PATHS.src.root}/**/${PATHS.src.css}`, () => {
         notify('Recompiling CSS');
+
         const res = buildCss();
         server && res.pipe(server.stream({ match: '**/*.css' }));
     });
