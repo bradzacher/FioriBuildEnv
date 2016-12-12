@@ -4,7 +4,6 @@ A gulp-based build environment for Fiori development, including deployment to an
 # Requirements
 
 - NodeJS v6.5 or greater (https://nodejs.org/en/)
-- Ruby v2.0 or greater (http://rubyinstaller.org/)
 - (Recommended) VS Code (https://code.visualstudio.com/)
 
 # Features
@@ -14,7 +13,7 @@ A gulp-based build environment for Fiori development, including deployment to an
     - SASS to CSS.
 - Linting:
     - JavaScript using ESlint against (a slightly modified) airbnb ruleset.
-    - SASS using SCSSLint.
+    - SASS using sass-lint.
 - Generates JavaScript and CSS source maps for easier browser debugging.
 - Minifies XML and HTML.
 - Builds a Component-preload.js containing all XML and JavaScript files.
