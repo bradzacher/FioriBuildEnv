@@ -103,8 +103,13 @@ function watch() {
     gulp.watch(`${PATHS.src.root}/**/${PATHS.src.css}`, () => {
         notify('Recompiling CSS');
 
-        const res = buildCss();
-        server && res.pipe(server.stream({ match: '**/*.css' }));
+        buildCss({
+            // all tasks return a promise, we need to access the internal gulp stream
+            // so that we can stream the result to the client via browserSync
+            streamCallback(stream) {
+                server && stream.pipe(server.stream({ match: '**/*.css' }));
+            },
+        });
     });
 
     // setup all the watches
