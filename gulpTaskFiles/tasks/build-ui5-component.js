@@ -12,9 +12,11 @@ function buildUi5Component() {
     const promises = packageList.get().map(pckg => new Promise((resolve, reject) => {
         const root = pckg.dest;
         return gulp.src([
-            `!${root}/**/*-dbg.js`,
+            `!${root}/**/*-dbg*.js`,
             `!${root}/**/Component-preload.js`,
+            `!${root}/**/library-preload.json`,
             `${root}/**/*.js`,
+            `${root}/**/*.json`,
             `${root}/**/*.xml`,
         ])
         .pipe(ui5preload({
