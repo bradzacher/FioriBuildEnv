@@ -58,6 +58,7 @@ This is the general use case; use this structure if you are building a single ap
 │   │   ├── /fragment/          # Fragment XML files
 │   │   ├── /Component.js       # Component definition file
 │   │   └── /manifest.json      # Component manifest file
+│   ├── /lib/                   # 3rd-party JavaScript library files
 │   └── /css/                   # StyleSheet files (scss)
 ├── /build/                     # build directory
 └── /zip/                       # deployment zips
@@ -70,32 +71,43 @@ All apps will be built into separate Component-preload.js files.
 ```
 ├── /src/
 │   ├── /app_ONE                    # app_ONE source code
-│   │   ├── /index.html             # Base HTML page
-│   │   ├── /js/                    # javascript/code related source files
-│   │   │   ├── /controller/        # Controller JavaScript files
-│   │   │   ├── /i18n/              # Internationalisation *.properties files
-│   │   │   ├── /view/              # View XML files
-│   │   │   ├── /fragment/          # Fragment XML files
-│   │   │   ├── /Component.js       # Component definition file
-│   │   │   └── /manifest.json      # Component manifest file
-|   │   └── /css/                   # StyleSheet files (scss)
+│   │   │                           # just use the single app SRC folder structure from above
+│   │   ├── /index.html
+│   │   ├── /js/
+│   │   │   ├── /controller/
+│   │   │   ├── /i18n/
+│   │   │   ├── /view/
+│   │   │   ├── /fragment/
+│   │   │   ├── /Component.js
+│   │   │   └── /manifest.json
+│   │   ├── /lib/
+│   │   └── /css/
 │   ├── /app_TWO                    # app_TWO source code
-│   │   └── ...                     # repeat the structure...
+│   │   └── ...                     # Single App Structure
 │   ├── /library_ONE                # library_ONE source code
 │   │   ├── /is.library             # Library indicator file
-│   │   ├── /js/                    # javascript/code related source files
-│   │   │   ├── /controller/        # Controller JavaScript files
-│   │   │   ├── /i18n/              # Internationalisation *.properties files
-│   │   │   ├── /view/              # View XML files
-│   │   │   ├── /fragment/          # Fragment XML files
-│   │   │   ├── /Component.js       # Component definition file
-│   │   │   └── /manifest.json      # Component manifest file
-|   │   └── /css/                   # StyleSheet files (scss)
-│   └── ...                         # repeat...
+│   │   └── ...                     # Single App Structure
+│   └── ...                         # repeat for as many apps/libraries as required
 ```
 
 Note that for the library above, an empty file is added to the tree name `is.library`.
 This file tells the library that the package is intended to be built into a `library-preload.json` instead of a `Component-preload.js`.
+
+## 3rd-party Libraries
+
+If you use any 3rd-party libraries, make sure that they are put in the `lib` folder, and that the `lib` folder is _not_ under the `js` folder.
+If they are placed under the `js` folder, then they will be linted and prepared as user-code, which will significantly slow your build.
+
+All libraries included in the `lib` folder will be bundled into a single `lib-dbg.js`/`lib.js` file.
+This means that you can then access them via standard dependency injection:
+```JS
+sap.ui.define([
+    '<namespace>/lib',
+], function() {
+
+});
+```
+Where `<namespace>` is your app's root namespace.
 
 # Gulp Tasks
 
