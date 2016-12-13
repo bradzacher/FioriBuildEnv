@@ -43,9 +43,6 @@ let successReceived = false;
 function electronAuth(resolveAuth, rejectAuth) {
     electron.start();
     electron.on('auth-success', (authCookie) => {
-        // for some reason sometimes the success fires twice
-        // this will prevent us from trying to boot two servers on the port
-        // todo - debug this
         if (successReceived) {
             return;
         }
