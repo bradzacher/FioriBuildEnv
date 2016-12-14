@@ -203,11 +203,13 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                         Cookie: cookieHeader,
                     },
                     secure: false,
-                    onProxyReq(proxyReq, req, res) {
+                    onProxyReq(proxyReq, req) {
                         // add the accept json header to all GET requests
                         // just means that if you're viewing service data in browser you don't have
                         // to add $format=json
-                        if (req.method === 'GET') {
+                        // though we can't do it for $metadata as it'll literally crash the response..
+                        if (req.method === 'GET' &&
+                            req.url.indexOf('$metadata') === -1) {
                             proxyReq.setHeader('accept', 'application/json');
                         }
                     },
