@@ -203,6 +203,14 @@ function server({ useAuth = true, useProxy = true, browserSyncOptions = { } }) {
                         Cookie: cookieHeader,
                     },
                     secure: false,
+                    onProxyReq(proxyReq, req, res) {
+                        // add the accept json header to all GET requests
+                        // just means that if you're viewing service data in browser you don't have
+                        // to add $format=json
+                        if (req.method === 'GET') {
+                            proxyReq.setHeader('accept', 'application/json');
+                        }
+                    },
                 });
                 const libProxy = proxy('**/resources/**', {
                     target: `${sapConfig.gateway}/sap/bc/ui5_ui5/ui2/ushell/shells/abap`,
