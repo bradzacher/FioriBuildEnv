@@ -15,9 +15,9 @@ const { PATHS, SIZE_OPTS, beep } = require('../CONSTANTS.js');
 /**
  * Lints and compiles SASS, then concats and mins the css
  */
-function buildCss() {
+function buildCss(opts = { streamCallback() {} }) {
     const promises = packageList.get().map(pckg => new Promise((resolve, reject) => {
-        gulp.src(`${pckg.src}/${PATHS.src.css}`)
+        const stream = gulp.src(`${pckg.src}/${PATHS.src.css}`)
             // lint the css
             // we use a custom reporter because for some reason the default reporter kills gulp.watch
             .pipe(sasslint({ config: '.sass-lint.yml' }))
@@ -40,6 +40,7 @@ function buildCss() {
             .pipe(gulp.dest(`${pckg.dest}/css`))
             .on('error', reject)
             .on('end', resolve);
+        opts.streamCallback && opts.streamCallback(stream);
     }));
     return Promise.all(promises);
 }
